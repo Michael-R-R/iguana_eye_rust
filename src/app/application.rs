@@ -4,7 +4,7 @@ use winit::event_loop::{EventLoop, ControlFlow};
 use winit::window::{Window, WindowBuilder, Icon};
 use winit::event::{Event, WindowEvent, KeyboardInput, ElementState, ModifiersState};
 
-use crate::file;
+use crate::util::file;
 
 pub struct Application {
     pub width: u32,
