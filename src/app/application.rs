@@ -20,20 +20,17 @@ impl Application {
         env_logger::init();
 
         // Create the title bar icon
-        let abs_path = match file::absolute_path(icon_path) {
-            Some(i) => i,
-            None => panic!("ERROR::Application::new()::could not read icon absolute path - [{icon_path}]")
+        let abs_icon_path = match file::absolute_path(icon_path) {
+            Ok(val) => val,
+            Err(e) => panic!("{e}")
         };
-        let img_bytes = std::fs::read(abs_path).expect("ERROR::Application::new()::could not read icon file");
+        let img_bytes = std::fs::read(abs_icon_path).expect("ERROR::Application::new()::could not read icon file");
         let img = image::load_from_memory(&img_bytes).expect("ERROR::Application::new()::could not load icon image from memory");
         let img_rgba = img.to_rgba8();
         let img_size = img.dimensions();
         let icon = match Icon::from_rgba(img_rgba.into_vec(), img_size.0, img_size.1) {
             Ok(i) => Some(i),
-            Err(e) => {
-                println!("{e}");
-                None
-            },
+            Err(e) => panic!("{e}"),
         };
 
         let event_loop = EventLoop::new();
