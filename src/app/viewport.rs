@@ -1,3 +1,4 @@
+use wgpu::{SurfaceTexture, TextureView, CommandEncoder, RenderPass};
 use winit::{window::Window, dpi::PhysicalSize};
 
 pub struct Viewport {
@@ -6,6 +7,12 @@ pub struct Viewport {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub config: wgpu::SurfaceConfiguration,
+}
+
+pub struct Frame {
+    frame: SurfaceTexture,
+    view: TextureView,
+    encoder: CommandEncoder,
 }
 
 impl Viewport {
@@ -79,5 +86,42 @@ impl Viewport {
         self.config.width = size.width;
         self.config.height = size.height;
         self.surface.configure(&self.device, &self.config);
+    }
+}
+
+impl Frame {
+    pub fn begin(viewport: &Viewport) -> Self {
+        let frame = viewport.surface.get_current_texture()
+            .expect("ERROR::app::viewport::frame::begin()::cannot get current texture");
+
+        let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        
+        let encoder = viewport.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: None,
+        });
+
+        Self { frame, view, encoder }
+    }
+
+    pub fn render_pass(&mut self) -> RenderPass {
+        self.encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: None,
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &self.view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: 0.2, g: 0.2, b: 0.2, a: 1.0,
+                    }),
+                    store: true,
+                }
+            })],
+            depth_stencil_attachment: None,
+        })
+    }
+
+    pub fn end(self, viewport: &Viewport) {
+        viewport.queue.submit(std::iter::once(self.encoder.finish()));
+        self.frame.present();
     }
 }

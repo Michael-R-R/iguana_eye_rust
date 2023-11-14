@@ -1,14 +1,15 @@
 use image::GenericImageView;
-use wgpu::{Surface, Device, Queue, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 use winit::event_loop::{EventLoop, ControlFlow};
 use winit::window::{Window, WindowBuilder, Icon, Fullscreen};
-use winit::event::{Event, WindowEvent, KeyboardInput, ElementState, ModifiersState};
+use winit::event::{Event, WindowEvent, KeyboardInput, ModifiersState};
 
 use super::Config;
 use super::Viewport;
+use super::Frame;
 use super::Time;
 use crate::game::Game;
+use crate::editor::UI;
 use crate::util::file;
 use crate::util::serialize;
 
@@ -18,6 +19,7 @@ pub struct Application {
     pub window: Window,
     pub viewport: Viewport,
     pub game: Game,
+    pub ui: UI,
 }
 
 impl Application {
@@ -66,8 +68,8 @@ impl Application {
         }
 
         let viewport = Viewport::new(&window).await;
-
         let game = Game::new();
+        let ui = UI::new(&window, &viewport);
 
         Self {
             width: config.width,
@@ -75,6 +77,7 @@ impl Application {
             window,
             viewport,
             game,
+            ui,
         }
     }
 
@@ -82,6 +85,8 @@ impl Application {
         let mut time = Time::new();
 
         event_loop.run(move |event, _, cf| {
+            self.handle_event(&event);
+
             match event {
                 Event::MainEventsCleared => self.window.request_redraw(),
                 Event::RedrawEventsCleared => {
@@ -108,15 +113,26 @@ impl Application {
         }
     }
 
-    fn handle_update(&self, dt: f32) {
-        let window = &self.window;
-        self.game.update(window, dt);
+    fn handle_event(&mut self, event: &Event<'_, ()>) {
+        self.ui.handle_event(&self.window, event)
     }
 
-    fn handle_render(&self, dt: f32) {
+    fn handle_update(&mut self, dt: f32) {
+        let window = &self.window;
+        self.game.update(window, dt);
+        self.ui.update(window, dt);
+    }
+
+    fn handle_render(&mut self, dt: f32) {
         let window = &self.window;
         let viewport = &self.viewport;
-        self.game.render(window, viewport, dt);
+        let mut frame = Frame::begin(&self.viewport);
+        {
+            let mut rp = frame.render_pass();
+            self.game.render(window, &rp, dt);
+            self.ui.render(window, viewport, &mut rp, dt);
+        }
+        frame.end(&self.viewport);
     }
 
     fn handle_resize(&mut self, size: PhysicalSize<u32>) {

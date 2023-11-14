@@ -2,6 +2,7 @@ use winit::event_loop::EventLoop;
 
 mod app;
 mod game;
+mod editor;
 mod util;
 
 fn main() {
