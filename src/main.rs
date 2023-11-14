@@ -1,10 +1,19 @@
+use winit::event_loop::EventLoop;
+
 mod app;
+mod game;
 mod util;
 
 fn main() {
-    let app = app::Application::new(
+    
+    env_logger::init();
+    
+    let event_loop = EventLoop::new();
+    let app = pollster::block_on(app::Application::new(
         ".\\config\\app\\config.json",
-        ".\\resource\\icon\\app\\IguanaEye.png");  
+        ".\\resource\\icon\\app\\IguanaEye.png",
+        &event_loop));  
 
-    pollster::block_on(app.run());
+    pollster::block_on(app.run(event_loop));
 }
+

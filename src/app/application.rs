@@ -1,10 +1,14 @@
 use image::GenericImageView;
+use wgpu::{Surface, Device, Queue, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 use winit::event_loop::{EventLoop, ControlFlow};
 use winit::window::{Window, WindowBuilder, Icon, Fullscreen};
 use winit::event::{Event, WindowEvent, KeyboardInput, ElementState, ModifiersState};
 
 use super::Config;
+use super::Viewport;
+use super::Time;
+use crate::game::Game;
 use crate::util::file;
 use crate::util::serialize;
 
@@ -12,14 +16,13 @@ pub struct Application {
     pub width: u32,
     pub height: u32,
     pub window: Window,
-    pub event_loop: EventLoop<()>,
+    pub viewport: Viewport,
+    pub game: Game,
 }
 
 impl Application {
-    pub fn new(config_path: &str, icon_path: &str) -> Self {
+    pub async fn new(config_path: &str, icon_path: &str, event_loop: &EventLoop<()>) -> Self {
         
-        env_logger::init();
-
         let config: Config = match serialize::read(config_path) {
             Ok(val) => val,
             Err(e) => {
@@ -51,7 +54,6 @@ impl Application {
             Err(_) => None
         };
 
-        let event_loop = EventLoop::new();
         let window = WindowBuilder::new()
             .with_window_icon(icon)
             .with_title("Iguana Eye")
@@ -63,64 +65,72 @@ impl Application {
             window.set_fullscreen(Some(Fullscreen::Borderless(None)));
         }
 
+        let viewport = Viewport::new(&window).await;
+
+        let game = Game::new();
+
         Self {
             width: config.width,
             height: config.height,
             window,
-            event_loop,
+            viewport,
+            game,
         }
     }
 
-    pub async fn run(self) {
-        self.event_loop.run(move |event, _, cf| {
+    pub async fn run(mut self, event_loop: EventLoop<()>) {
+        let mut time = Time::new();
+
+        event_loop.run(move |event, _, cf| {
             match event {
                 Event::MainEventsCleared => self.window.request_redraw(),
-                Event::RedrawEventsCleared => Application::handle_update(),
+                Event::RedrawEventsCleared => {
+                    let dt = time.update();
+                    self.handle_update(dt);
+                    self.handle_render(dt);
+                },
                 Event::WindowEvent { event, .. } => {
-                    Application::handle_window_event(event, cf)
+                    self.handle_window_event(event, cf)
                 },
                 _ => {}
             };
         });
     }
 
-    fn handle_window_event(event: WindowEvent, cf: &mut ControlFlow) {
+    fn handle_window_event(&mut self, event: WindowEvent, cf: &mut ControlFlow) {
         match event {
-            WindowEvent::Resized(size) => Application::handle_resize(size),
-            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => Application::handle_scale_factor(new_inner_size),
+            WindowEvent::Resized(size) => self.handle_resize(size),
+            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => self.handle_resize(*new_inner_size),
             WindowEvent::CloseRequested => cf.set_exit(),
-            WindowEvent::KeyboardInput { input, .. } => Application::handle_input(input),
-            WindowEvent::ModifiersChanged(m) => { Application::handle_modifiers(m) },
+            WindowEvent::KeyboardInput { input, .. } => self.handle_input(input),
+            WindowEvent::ModifiersChanged(m) => { self.handle_modifiers(m) },
             _ => {}
         }
     }
 
-    fn handle_update() {
-        // Logic and Rendering happens here
+    fn handle_update(&self, dt: f32) {
+        let window = &self.window;
+        self.game.update(window, dt);
     }
 
-    fn handle_resize(_size: PhysicalSize<u32>) {
-        
+    fn handle_render(&self, dt: f32) {
+        let window = &self.window;
+        let viewport = &self.viewport;
+        self.game.render(window, viewport, dt);
     }
 
-    fn handle_scale_factor(_size: &mut PhysicalSize<u32>) {
-
-    }
-
-    fn handle_input(input: KeyboardInput) {
-        match input.state {
-            ElementState::Pressed => { },
-            ElementState::Released => { }
+    fn handle_resize(&mut self, size: PhysicalSize<u32>) {
+        if size.width > 0 && size.height > 0 {
+            self.viewport.resize(size);
+            self.game.resize(size);
         }
     }
 
-    fn handle_modifiers(m: ModifiersState) {
-        match m {
-            ModifiersState::ALT => {},
-            ModifiersState::CTRL => {},
-            ModifiersState::SHIFT => {},
-            ModifiersState::LOGO => {},
-            _ => {}
-        }
+    fn handle_input(&self, input: KeyboardInput) {
+        self.game.input(&input);
+    }
+
+    fn handle_modifiers(&self, m: ModifiersState) {
+        self.game.modifiers(&m);
     }
 }
