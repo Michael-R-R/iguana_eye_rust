@@ -144,12 +144,12 @@ impl Application {
         }
     }
 
-    fn handle_input(&self, input: KeyboardInput) {
+    fn handle_input(&mut self, input: KeyboardInput) {
         self.game.input(&input);
         self.ui.input(&input);
     }
 
-    fn handle_modifiers(&self, m: ModifiersState) {
+    fn handle_modifiers(&mut self, m: ModifiersState) {
         self.game.modifiers(&m);
         self.ui.modifiers(&m);
     }
