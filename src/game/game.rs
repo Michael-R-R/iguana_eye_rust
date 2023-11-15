@@ -15,7 +15,7 @@ impl Game {
 
     }
 
-    pub fn render(&self, _window: &Window, rp: &RenderPass, _dt: f32) {
+    pub fn render(&self, _window: &Window, _rp: &RenderPass, _dt: f32) {
         // --- Draw here --- //
 
         // ----------------- //

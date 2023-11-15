@@ -1,4 +1,4 @@
-use std::{time::Duration, io};
+use std::time::Duration;
 
 use imgui::*;
 use imgui::{Context, ConfigFlags, FontSource};
@@ -7,6 +7,7 @@ use imgui_winit_support::WinitPlatform;
 use wgpu::RenderPass;
 use winit::{window::Window, dpi::PhysicalSize, event::{KeyboardInput, ModifiersState, Event}};
 use crate::app::Viewport;
+use crate::game::Game;
 use crate::util::file;
 
 pub struct UI {
@@ -83,7 +84,13 @@ impl UI {
             .update_delta_time(Duration::from_secs_f32(dt));
     }
 
-    pub fn render<'a>(&'a mut self, window: &Window, viewport: &Viewport, rp: &mut RenderPass<'a>, _dt: f32) {
+    pub fn render<'a>(
+        &'a mut self, 
+        window: &Window, 
+        viewport: &Viewport, 
+        _game: &Game,
+        rp: &mut RenderPass<'a>, 
+        _dt: f32) {
         self.platform.prepare_frame(self.imgui.io_mut(), window)
             .expect("ERROR::editor::ui::render()::failed to prepare frame");
 

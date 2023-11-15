@@ -25,6 +25,7 @@ pub struct Application {
 impl Application {
     pub async fn new(config_path: &str, icon_path: &str, event_loop: &EventLoop<()>) -> Self {
         
+        // Load app config file
         let config: Config = match serialize::read(config_path) {
             Ok(val) => val,
             Err(e) => {
@@ -130,7 +131,7 @@ impl Application {
         {
             let mut rp = frame.render_pass();
             self.game.render(window, &rp, dt);
-            self.ui.render(window, viewport, &mut rp, dt);
+            self.ui.render(window, viewport, &self.game, &mut rp, dt);
         }
         frame.end(&self.viewport);
     }
@@ -139,14 +140,17 @@ impl Application {
         if size.width > 0 && size.height > 0 {
             self.viewport.resize(size);
             self.game.resize(size);
+            self.ui.resize(size);
         }
     }
 
     fn handle_input(&self, input: KeyboardInput) {
         self.game.input(&input);
+        self.ui.input(&input);
     }
 
     fn handle_modifiers(&self, m: ModifiersState) {
         self.game.modifiers(&m);
+        self.ui.modifiers(&m);
     }
 }
