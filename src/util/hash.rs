@@ -1,5 +1,5 @@
 // https://en.wikipedia.org/wiki/Jenkins_hash_function
-pub fn jenkins(str: String) -> u64 {
+pub fn jenkins(str: &String) -> u64 {
     let mut value: u64 = 0;
 
     for i in str.chars() {
