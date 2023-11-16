@@ -1,14 +1,8 @@
-use std::collections::HashMap;
-
 use wgpu::RenderPass;
 use winit::{window::Window, dpi::PhysicalSize, event::{KeyboardInput, ModifiersState}};
 use serde::{Serialize, Deserialize};
 
-use crate::sys::Input;
-
-// TODO test
-use winit::event::VirtualKeyCode;
-use crate::sys::input::Key;
+use crate::sys::input::Input;
 
 #[derive(Serialize, Deserialize)]
 pub struct Game {
@@ -17,44 +11,32 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
-        // TODO test
-        let hk = Some(HashMap::from([
-            ("Forward".to_string(), Key::new(VirtualKeyCode::W, ModifiersState::SHIFT)),
-            ("Backward".to_string(), Key::new(VirtualKeyCode::S, ModifiersState::empty())),
-        ]));
+        let input = Input::new(None);
 
         Self { 
-            input: Input::new(hk),
+            input,
         }
     }
 
-    pub fn update(&self, _window: &Window, _dt: f32) {
-        // TODO test
-        let forward = String::from("Forward");
-        let backward = String::from("Backward");
-        if self.input.status(&forward) {
-            println!("Forward");
-        }
-        if self.input.status(&backward) { // TODO not working
-            println!("Backward");
-        }
+    pub fn handle_update(&self, _window: &Window, _dt: f32) {
+
     }
 
-    pub fn render(&self, _window: &Window, _rp: &RenderPass, _dt: f32) {
+    pub fn handle_render(&self, _window: &Window, _rp: &RenderPass, _dt: f32) {
         // --- Draw here --- //
 
         // ----------------- //
     }
 
-    pub fn resize(&self, _size: PhysicalSize<u32>) {
+    pub fn handle_resize(&self, _size: PhysicalSize<u32>) {
 
     }
 
-    pub fn input(&mut self, input: &KeyboardInput) {
+    pub fn handle_input(&mut self, input: &KeyboardInput) {
         self.input.handle_input(input);
     }
 
-    pub fn modifiers(&mut self, m: &ModifiersState) {
+    pub fn handle_modifiers(&mut self, m: &ModifiersState) {
         self.input.handle_modifiers(m);
     }
 }

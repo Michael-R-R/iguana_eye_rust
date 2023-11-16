@@ -120,7 +120,7 @@ impl Application {
 
     fn handle_update(&mut self, dt: f32) {
         let window = &self.window;
-        self.game.update(window, dt);
+        self.game.handle_update(window, dt);
         self.ui.update(window, dt);
     }
 
@@ -130,7 +130,7 @@ impl Application {
         let mut frame = Frame::begin(&self.viewport);
         {
             let mut rp = frame.render_pass();
-            self.game.render(window, &rp, dt);
+            self.game.handle_render(window, &rp, dt);
             self.ui.render(window, viewport, &self.game, &mut rp, dt);
         }
         frame.end(&self.viewport);
@@ -139,18 +139,18 @@ impl Application {
     fn handle_resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.viewport.resize(size);
-            self.game.resize(size);
+            self.game.handle_resize(size);
             self.ui.resize(size);
         }
     }
 
     fn handle_input(&mut self, input: KeyboardInput) {
-        self.game.input(&input);
+        self.game.handle_input(&input);
         self.ui.input(&input);
     }
 
     fn handle_modifiers(&mut self, m: ModifiersState) {
-        self.game.modifiers(&m);
+        self.game.handle_modifiers(&m);
         self.ui.modifiers(&m);
     }
 }
