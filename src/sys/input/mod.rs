@@ -41,6 +41,10 @@ impl Input {
         return self.keyboard.state(name);
     }
 
+    pub fn button_state(&self, name: String) -> bool {
+        return self.mouse.state(name);
+    }
+
     pub fn handle_modifiers(&mut self, m: &ModifiersState) {
         self.keyboard.handle_modifiers(m);
     }

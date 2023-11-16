@@ -7,6 +7,8 @@ use super::Button;
 #[derive(Serialize, Deserialize)]
 pub struct Mouse {
     pub hotkeys: HashMap<String, Button>,
+
+    #[serde(skip)]
     buttons: HashMap<MouseButton, bool>
 }
 

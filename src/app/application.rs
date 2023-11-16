@@ -12,7 +12,6 @@ use crate::game::Game;
 use crate::editor::UI;
 use crate::util::file;
 use crate::util::serialize;
-
 pub struct Application {
     pub width: u32,
     pub height: u32,
@@ -68,13 +67,15 @@ impl Application {
             window.set_fullscreen(Some(Fullscreen::Borderless(None)));
         }
 
+        let width = config.width;
+        let height = config.height;
         let viewport = Viewport::new(&window).await;
         let game = Game::new();
         let ui = UI::new(&window, &viewport);
 
         Self {
-            width: config.width,
-            height: config.height,
+            width,
+            height,
             window,
             viewport,
             game,

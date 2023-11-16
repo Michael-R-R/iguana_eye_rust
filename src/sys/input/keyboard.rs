@@ -7,7 +7,11 @@ use super::Key;
 #[derive(Serialize, Deserialize)]
 pub struct Keyboard {
     pub hotkeys: HashMap<String, Key>,
+
+    #[serde(skip)]
     keys: HashMap<VirtualKeyCode, bool>,
+
+    #[serde(skip)]
     modifiers: HashMap<ModifiersState, bool>,
 }
 

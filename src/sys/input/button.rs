@@ -1,7 +1,7 @@
 use winit::event::MouseButton;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Button {
     pub button: MouseButton,
 }
