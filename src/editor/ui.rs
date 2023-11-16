@@ -5,7 +5,8 @@ use imgui::{Context, ConfigFlags, FontSource};
 use imgui_wgpu::{Renderer, RendererConfig};
 use imgui_winit_support::WinitPlatform;
 use wgpu::RenderPass;
-use winit::{window::Window, dpi::PhysicalSize, event::{KeyboardInput, ModifiersState, Event}};
+use winit::{window::Window, dpi::PhysicalSize};
+use winit::event::{KeyboardInput, ModifiersState, MouseButton, Event, ElementState};
 use crate::app::Viewport;
 use crate::game::Game;
 use crate::util::file;
@@ -78,13 +79,13 @@ impl UI {
         }
     }
 
-    pub fn update(&mut self, _window: &Window, dt: f32) {
+    pub fn handle_update(&mut self, _window: &Window, dt: f32) {
         self.imgui
             .io_mut()
             .update_delta_time(Duration::from_secs_f32(dt));
     }
 
-    pub fn render<'a>(
+    pub fn handle_render<'a>(
         &'a mut self, 
         window: &Window, 
         viewport: &Viewport, 
@@ -130,15 +131,19 @@ impl UI {
         ).expect("ERROR::editor::ui::render()::failed to render");
     }
 
-    pub fn resize(&self, _size: PhysicalSize<u32>) {
+    pub fn handle_modifiers(&self, _mod: &ModifiersState) {
 
     }
 
-    pub fn input(&self, _input: &KeyboardInput) {
+    pub fn handle_resize(&self, _size: PhysicalSize<u32>) {
 
     }
 
-    pub fn modifiers(&self, _mod: &ModifiersState) {
+    pub fn handle_kb_input(&self, _input: &KeyboardInput) {
+
+    }
+
+    pub fn handle_mb_input(&mut self, _state: &ElementState, _input: &MouseButton) {
 
     }
 

@@ -12,12 +12,8 @@ pub struct Keyboard {
 }
 
 impl Keyboard {
-    pub fn new(hk: Option<HashMap<String, Key>>) -> Self {
-
-        let hotkeys = match hk {
-            Some(val) => val,
-            None => HashMap::new()
-        };
+    pub fn new() -> Self {
+        let hotkeys = HashMap::new();
         let keys = HashMap::new();
         let modifiers = HashMap::from([(ModifiersState::empty(), true)]);
 
@@ -29,6 +25,10 @@ impl Keyboard {
     }
 
     pub fn add_hotkey(&mut self, name: String, key: Key) {
+        if self.hotkeys.contains_key(&name) {
+            return;
+        }
+
         self.hotkeys.insert(name, key);
     }
 
@@ -36,7 +36,7 @@ impl Keyboard {
         self.hotkeys.remove(&name);
     }
 
-    pub fn update_hotkey(&mut self, name: String, key: Key) {
+    pub fn modify_hotkey(&mut self, name: String, key: Key) {
         if self.hotkeys.contains_key(&name) {
             self.hotkeys.insert(name, key);
         }
@@ -49,10 +49,10 @@ impl Keyboard {
         };
 
         match self.keys.get(&hotkey.code) {
-            Some(key) => {
+            Some(key_state) => {
                 match self.modifiers.get(&hotkey.modifier) {
-                    Some(modifier) => {
-                        return *key && *modifier
+                    Some(modifier_state) => {
+                        return *key_state && *modifier_state
                     },
                     None => return false
                 }

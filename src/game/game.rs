@@ -1,6 +1,7 @@
 use wgpu::RenderPass;
-use winit::{window::Window, dpi::PhysicalSize, event::{KeyboardInput, ModifiersState}};
 use serde::{Serialize, Deserialize};
+use winit::{window::Window, dpi::PhysicalSize};
+use winit::event::{KeyboardInput, ModifiersState, MouseButton, ElementState};
 
 use crate::sys::input::Input;
 
@@ -11,7 +12,7 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
-        let input = Input::new(None);
+        let input = Input::new();
 
         Self { 
             input,
@@ -32,11 +33,15 @@ impl Game {
 
     }
 
-    pub fn handle_input(&mut self, input: &KeyboardInput) {
-        self.input.handle_input(input);
-    }
-
     pub fn handle_modifiers(&mut self, m: &ModifiersState) {
         self.input.handle_modifiers(m);
+    }
+
+    pub fn handle_kb_input(&mut self, input: &KeyboardInput) {
+        self.input.handle_kb_input(input);
+    }
+
+    pub fn handle_mb_input(&mut self, state: &ElementState, input: &MouseButton) {
+        self.input.handle_mb_input(state, input);
     }
 }
