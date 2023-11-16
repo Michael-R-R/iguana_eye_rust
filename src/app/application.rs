@@ -12,6 +12,7 @@ use crate::game::Game;
 use crate::editor::UI;
 use crate::util::file;
 use crate::util::serialize;
+
 pub struct Application {
     pub width: u32,
     pub height: u32,
