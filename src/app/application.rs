@@ -2,7 +2,7 @@ use image::GenericImageView;
 use winit::dpi::PhysicalSize;
 use winit::event_loop::{EventLoop, ControlFlow};
 use winit::window::{Window, WindowBuilder, Icon, Fullscreen};
-use winit::event::{Event, WindowEvent, KeyboardInput, ModifiersState};
+use winit::event::{Event, WindowEvent, KeyboardInput, ModifiersState, MouseButton, ElementState};
 
 use super::Config;
 use super::Viewport;
@@ -12,7 +12,6 @@ use crate::game::Game;
 use crate::editor::UI;
 use crate::util::file;
 use crate::util::serialize;
-
 pub struct Application {
     pub width: u32,
     pub height: u32,
@@ -68,13 +67,15 @@ impl Application {
             window.set_fullscreen(Some(Fullscreen::Borderless(None)));
         }
 
+        let width = config.width;
+        let height = config.height;
         let viewport = Viewport::new(&window).await;
         let game = Game::new();
         let ui = UI::new(&window, &viewport);
 
         Self {
-            width: config.width,
-            height: config.height,
+            width,
+            height,
             window,
             viewport,
             game,
@@ -105,11 +106,12 @@ impl Application {
 
     fn handle_window_event(&mut self, event: WindowEvent, cf: &mut ControlFlow) {
         match event {
+            WindowEvent::CloseRequested => cf.set_exit(),
             WindowEvent::Resized(size) => self.handle_resize(size),
             WindowEvent::ScaleFactorChanged { new_inner_size, .. } => self.handle_resize(*new_inner_size),
-            WindowEvent::CloseRequested => cf.set_exit(),
-            WindowEvent::KeyboardInput { input, .. } => self.handle_input(input),
             WindowEvent::ModifiersChanged(m) => { self.handle_modifiers(m) },
+            WindowEvent::KeyboardInput { input, .. } => self.handle_kb_input(input),
+            WindowEvent::MouseInput { state, button, .. } => self.handle_mb_input(state, button),
             _ => {}
         }
     }
@@ -120,8 +122,8 @@ impl Application {
 
     fn handle_update(&mut self, dt: f32) {
         let window = &self.window;
-        self.game.update(window, dt);
-        self.ui.update(window, dt);
+        self.game.handle_update(window, dt);
+        self.ui.handle_update(window, dt);
     }
 
     fn handle_render(&mut self, dt: f32) {
@@ -130,8 +132,8 @@ impl Application {
         let mut frame = Frame::begin(&self.viewport);
         {
             let mut rp = frame.render_pass();
-            self.game.render(window, &rp, dt);
-            self.ui.render(window, viewport, &self.game, &mut rp, dt);
+            self.game.handle_render(window, &rp, dt);
+            self.ui.handle_render(window, viewport, &self.game, &mut rp, dt);
         }
         frame.end(&self.viewport);
     }
@@ -139,18 +141,24 @@ impl Application {
     fn handle_resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.viewport.resize(size);
-            self.game.resize(size);
-            self.ui.resize(size);
+            self.game.handle_resize(size);
+            self.ui.handle_resize(size);
         }
     }
 
-    fn handle_input(&self, input: KeyboardInput) {
-        self.game.input(&input);
-        self.ui.input(&input);
+    fn handle_modifiers(&mut self, m: ModifiersState) {
+        self.game.handle_modifiers(&m);
+        self.ui.handle_modifiers(&m);
     }
 
-    fn handle_modifiers(&self, m: ModifiersState) {
-        self.game.modifiers(&m);
-        self.ui.modifiers(&m);
+    fn handle_kb_input(&mut self, input: KeyboardInput) {
+        self.game.handle_kb_input(&input);
+        self.ui.handle_kb_input(&input);
     }
+
+    fn handle_mb_input(&mut self, state: ElementState, input: MouseButton) {
+        self.game.handle_mb_input(&state, &input);
+        self.ui.handle_mb_input(&state, &input);
+    }
+
 }
