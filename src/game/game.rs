@@ -24,9 +24,7 @@ impl Game {
     }
 
     pub fn handle_render(&self, _window: &Window, _rp: &RenderPass, _dt: f32) {
-        // --- Draw here --- //
-
-        // ----------------- //
+        
     }
 
     pub fn handle_resize(&self, _size: PhysicalSize<u32>) {

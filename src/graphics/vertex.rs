@@ -1,12 +1,20 @@
+use serde::{Serialize, Deserialize};
+
+pub trait Layout {
+    fn layout() -> wgpu::VertexBufferLayout<'static>;
+}
+
 #[repr(C)]
-#[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Clone, Copy)]
+#[derive(bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Serialize, Deserialize)]
 pub struct Vertex {
     pub position: [f32; 3],
     pub color: [f32; 4],
 }
 
-impl Vertex {
-    pub fn layout() -> wgpu::VertexBufferLayout<'static> {
+impl Layout for Vertex {
+    fn layout() -> wgpu::VertexBufferLayout<'static> {
         wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
@@ -27,13 +35,15 @@ impl Vertex {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Clone, Copy)]
+#[derive(bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Serialize, Deserialize)]
 pub struct InstanceVertex {
     model: [[f32; 4]; 4],
 }
 
-impl InstanceVertex {
-    pub fn layout() -> wgpu::VertexBufferLayout<'static> {
+impl Layout for InstanceVertex {
+    fn layout() -> wgpu::VertexBufferLayout<'static> {
         wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<InstanceVertex>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Instance,
