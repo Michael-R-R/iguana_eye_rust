@@ -132,9 +132,8 @@ impl Application {
         let viewport = &self.viewport;
         let mut frame = Frame::begin(&self.viewport);
         {
-            let mut rp = frame.render_pass();
-            self.game.handle_render(window, viewport, &mut rp, dt);
-            self.ui.handle_render(window, viewport, &self.game, &mut rp, dt);
+            self.game.handle_render(window, viewport, &mut frame, dt);
+            self.ui.handle_render(window, viewport, &self.game, &mut frame, dt);
         }
         frame.end(&self.viewport);
     }

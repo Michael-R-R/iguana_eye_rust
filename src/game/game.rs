@@ -3,6 +3,7 @@ use serde::{Serialize, Deserialize};
 use winit::{window::Window, dpi::PhysicalSize};
 use winit::event::{KeyboardInput, ModifiersState, MouseButton, ElementState};
 
+use crate::app::{Viewport, Frame};
 use crate::sys::input::Input;
 
 #[derive(Serialize, Deserialize)]
@@ -23,8 +24,15 @@ impl Game {
 
     }
 
-    pub fn handle_render(&self, _window: &Window, _rp: &RenderPass, _dt: f32) {
-        
+    pub fn handle_render(&self, 
+        _window: &Window, 
+        _viewport: &Viewport, 
+        frame: &mut Frame, 
+        _dt: f32
+    ) {
+        {
+            let _rp = frame.render_pass_game();
+        }
     }
 
     pub fn handle_resize(&self, _size: PhysicalSize<u32>) {

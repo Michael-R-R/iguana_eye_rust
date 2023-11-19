@@ -103,7 +103,7 @@ impl Frame {
         Self { frame, view, encoder }
     }
 
-    pub fn render_pass(&mut self) -> RenderPass {
+    pub fn render_pass_game(&mut self) -> RenderPass {
         self.encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: None,
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
@@ -113,6 +113,21 @@ impl Frame {
                     load: wgpu::LoadOp::Clear(wgpu::Color {
                         r: 0.2, g: 0.2, b: 0.2, a: 1.0,
                     }),
+                    store: true,
+                }
+            })],
+            depth_stencil_attachment: None,
+        })
+    }
+
+    pub fn render_pass_ui(&mut self) -> RenderPass {
+        self.encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: None,
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &self.view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Load,
                     store: true,
                 }
             })],
