@@ -35,7 +35,7 @@ impl Shader {
     fn create(path: &str, device: &Device) -> Result<(String, u64, Option<ShaderModule>), io::Error> {
         let path = file::absolute_path(path)?;
         let content = std::fs::read_to_string(&path)?;
-        let hash = hash::jenkins(&path);
+        let hash = hash::hasher(&path);
         let module = Some(device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some(&hash.to_string()),
             source: wgpu::ShaderSource::Wgsl(content.into()),

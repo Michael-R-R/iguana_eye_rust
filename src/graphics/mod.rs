@@ -7,3 +7,5 @@ pub use self::vertex::Vertex;
 pub use self::vertex::InstanceVertex;
 
 mod renderable;
+pub use self::renderable::VertexRenderable;
+pub use self::renderable::IndexRenderable;
