@@ -2,36 +2,36 @@ use std::io;
 use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
-use super::{VertexRenderable, OnDeserialization};
-use crate::graphics::{Vertex, Shader};
+use super::{Vertex, OnDeserialization};
+use crate::graphics::{VertexBuffer, Shader};
 
 #[derive(Serialize, Deserialize)]
-pub struct IndexRenderable {
-    #[serde(skip)]
-    pub index_buffer: Option<wgpu::Buffer>,
-
-    pub v_renderable: VertexRenderable,
+pub struct Index {
+    pub r_vertex: Vertex,
     pub index_count: u32,
     pub index_list: Vec<u16>,
+
+    #[serde(skip)]
+    pub index_buffer: Option<wgpu::Buffer>,
 }
 
-impl IndexRenderable {
+impl Index {
     pub fn new(
         hash: u64,
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
-        vertex_list: Vec<Vertex>,
+        buffer_list: Vec<VertexBuffer>,
         index_list: Vec<u16>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
     ) -> Result<Self, io::Error> {
         
-        let v_renderable = VertexRenderable::new(hash, device, config, shader, vertex_list, buffer_layouts)?;
-        let index_buffer = Some(IndexRenderable::create_index_buffer(device, &index_list));
+        let r_vertex = Vertex::new(hash, device, config, shader, buffer_list, buffer_layouts)?;
+        let index_buffer = Some(Index::create_index_buffer(device, &index_list));
         let index_count = index_list.len() as u32;
 
         Ok(Self {
-            v_renderable,
+            r_vertex,
             index_buffer,
             index_list,
             index_count
@@ -43,13 +43,13 @@ impl IndexRenderable {
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
-        vertex_list: Vec<Vertex>,
+        buffer_list: Vec<VertexBuffer>,
         index_list: Vec<u16>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
     ) -> Result<(), io::Error> {
 
-        self.v_renderable.modify(device, config, shader, vertex_list, buffer_layouts)?;
-        self.index_buffer = Some(IndexRenderable::create_index_buffer(device, &index_list));
+        self.r_vertex.modify(device, config, shader, buffer_list, buffer_layouts)?;
+        self.index_buffer = Some(Index::create_index_buffer(device, &index_list));
         self.index_count = index_list.len() as u32;
         self.index_list = index_list;
 
@@ -69,7 +69,7 @@ impl IndexRenderable {
     }
 }
 
-impl OnDeserialization for IndexRenderable {
+impl OnDeserialization for Index {
     fn init(
         &mut self, 
         device: &wgpu::Device,
@@ -78,8 +78,8 @@ impl OnDeserialization for IndexRenderable {
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
     ) -> Result<(), std::io::Error> {
 
-        self.v_renderable.init(device, config, shader, buffer_layouts)?;
-        self.index_buffer = Some(IndexRenderable::create_index_buffer(device, &self.index_list));
+        self.r_vertex.init(device, config, shader, buffer_layouts)?;
+        self.index_buffer = Some(Index::create_index_buffer(device, &self.index_list));
 
         Ok(())
     }

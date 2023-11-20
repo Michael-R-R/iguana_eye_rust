@@ -1,8 +1,10 @@
-mod v_renderable;
-mod i_renderable;
+mod r_vertex;
+mod r_index;
+mod r_inst_index;
 
-pub use self::v_renderable::VertexRenderable;
-pub use self::i_renderable::IndexRenderable;
+pub use self::r_vertex::Vertex;
+pub use self::r_index::Index;
+pub use self::r_inst_index::InstanceIndex;
 
 pub trait OnDeserialization {
     fn init(

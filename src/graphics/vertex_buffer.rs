@@ -8,15 +8,15 @@ pub trait Layout {
 #[derive(Clone, Copy)]
 #[derive(bytemuck::Pod, bytemuck::Zeroable)]
 #[derive(Serialize, Deserialize)]
-pub struct Vertex {
+pub struct VertexBuffer {
     pub position: [f32; 3],
     pub color: [f32; 4],
 }
 
-impl Layout for Vertex {
+impl Layout for VertexBuffer {
     fn layout() -> wgpu::VertexBufferLayout<'static> {
         wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+            array_stride: std::mem::size_of::<VertexBuffer>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttribute {
@@ -38,14 +38,14 @@ impl Layout for Vertex {
 #[derive(Clone, Copy)]
 #[derive(bytemuck::Pod, bytemuck::Zeroable)]
 #[derive(Serialize, Deserialize)]
-pub struct InstanceVertex {
+pub struct InstanceBuffer {
     model: [[f32; 4]; 4],
 }
 
-impl Layout for InstanceVertex {
+impl Layout for InstanceBuffer {
     fn layout() -> wgpu::VertexBufferLayout<'static> {
         wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<InstanceVertex>() as wgpu::BufferAddress,
+            array_stride: std::mem::size_of::<InstanceBuffer>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Instance,
             attributes: &[
                 wgpu::VertexAttribute {

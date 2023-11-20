@@ -2,33 +2,33 @@ use std::io;
 use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
-use crate::graphics::{Vertex, Shader, Layout};
+use crate::graphics::{VertexBuffer, Shader, Layout};
 
 #[derive(Serialize, Deserialize)]
-pub struct VertexRenderable {
+pub struct Vertex {
+    pub hash: u64,
+    pub shader_hash: u64,
+    pub buffer_list: Vec<VertexBuffer>,
+
     #[serde(skip)]
     pub pipeline: Option<wgpu::RenderPipeline>,
 
     #[serde(skip)]
     pub vertex_buffer: Option<wgpu::Buffer>,
-
-    pub hash: u64,
-    pub shader_hash: u64,
-    pub vertex_list: Vec<Vertex>,
 }
 
-impl VertexRenderable {
+impl Vertex {
     pub fn new(
         hash: u64,
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
-        vertex_list: Vec<Vertex>,
+        buffer_list: Vec<VertexBuffer>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
     ) -> Result<Self, io::Error> {
 
-        let pipeline = Some(VertexRenderable::create_pipeline(device, config, shader, buffer_layouts)?);
-        let vertex_buffer = Some(VertexRenderable::create_vertex_buffer(device, &vertex_list));
+        let pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts)?);
+        let vertex_buffer = Some(Vertex::create_vertex_buffer(device, &buffer_list));
         let shader_hash = shader.hash;
 
         Ok(Self {
@@ -36,7 +36,7 @@ impl VertexRenderable {
             vertex_buffer,
             hash,
             shader_hash,
-            vertex_list,
+            buffer_list,
         })
     }
 
@@ -45,12 +45,12 @@ impl VertexRenderable {
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
-        vertex_list: Vec<Vertex>,
+        buffer_list: Vec<VertexBuffer>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
     ) -> Result<(), io::Error> {
 
-        self.pipeline = Some(VertexRenderable::create_pipeline(device, config, shader, buffer_layouts)?);
-        self.vertex_buffer = Some(VertexRenderable::create_vertex_buffer(device, &vertex_list));
+        self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts)?);
+        self.vertex_buffer = Some(Vertex::create_vertex_buffer(device, &buffer_list));
         self.shader_hash = shader.hash;
 
         Ok(())
@@ -63,7 +63,7 @@ impl VertexRenderable {
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
     ) -> Result<wgpu::RenderPipeline, io::Error> {
 
-            buffer_layouts.insert(0, Vertex::layout());
+            buffer_layouts.insert(0, VertexBuffer::layout());
 
             let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: None,
@@ -119,18 +119,18 @@ impl VertexRenderable {
 
     fn create_vertex_buffer(
         device: &wgpu::Device,
-        vertex_list: &Vec<Vertex>
+        buffer_list: &Vec<VertexBuffer>
     ) -> wgpu::Buffer {
 
         device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
-            contents: bytemuck::cast_slice(&vertex_list),
+            contents: bytemuck::cast_slice(&buffer_list),
             usage: wgpu::BufferUsages::VERTEX,
         })
     }
 }
 
-impl super::OnDeserialization for VertexRenderable {
+impl super::OnDeserialization for Vertex {
     fn init(
         &mut self, 
         device: &wgpu::Device,
@@ -139,8 +139,8 @@ impl super::OnDeserialization for VertexRenderable {
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
     ) -> Result<(), std::io::Error> {
         
-        self.pipeline = Some(VertexRenderable::create_pipeline(device, config, shader, buffer_layouts)?); 
-        self.vertex_buffer = Some(VertexRenderable::create_vertex_buffer(device, &self.vertex_list));
+        self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts)?); 
+        self.vertex_buffer = Some(Vertex::create_vertex_buffer(device, &self.buffer_list));
 
         Ok(())
     }
