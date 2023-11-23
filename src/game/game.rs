@@ -1,4 +1,3 @@
-use wgpu::RenderPass;
 use serde::{Serialize, Deserialize};
 use winit::{window::Window, dpi::PhysicalSize};
 use winit::event::{KeyboardInput, ModifiersState, MouseButton, ElementState};
@@ -35,7 +34,7 @@ impl Game {
         }
     }
 
-    pub fn handle_resize(&self, _size: PhysicalSize<u32>) {
+    pub fn handle_resize(&mut self, _size: PhysicalSize<u32>) {
 
     }
 

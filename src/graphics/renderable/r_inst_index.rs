@@ -59,8 +59,8 @@ impl InstanceIndex {
         Ok(())
     }
 
-    pub fn add_instance(&mut self, device: &Device, data: InstanceBuffer) -> u32 {
-        let index = self.inst_list.len() as u32;
+    pub fn add_instance(&mut self, device: &Device, data: InstanceBuffer) -> usize {
+        let index = self.inst_list.len();
         
         self.inst_list.push(data);
         self.inst_buffer = Some(InstanceIndex::create_inst_buffer(device, &self.inst_list));
@@ -68,8 +68,22 @@ impl InstanceIndex {
         return index;
     }
 
-    pub fn modify_instance(&mut self, queue: &Queue, index: usize, data: InstanceBuffer)
-    -> Result<(), io::Error> {
+    pub fn remove_instance(&mut self, device: &Device, index: usize) -> Result<usize, io::Error> {
+        if !self.bounds_check(index) {
+            return Err(io::Error::new(io::ErrorKind::NotFound,
+                "ERROR::r_inst_index::remove_instance()::index out of bounds"))
+        }
+
+        let last = self.inst_list.len() - 1;
+        self.inst_list[index] = self.inst_list[last];
+        self.inst_list.pop();
+
+        self.inst_buffer = Some(InstanceIndex::create_inst_buffer(device, &self.inst_list));
+
+        Ok(last)
+    }
+
+    pub fn modify_instance(&mut self, queue: &Queue, index: usize, data: InstanceBuffer) -> Result<(), io::Error> {
 
         if !self.bounds_check(index) {
             return Err(io::Error::new(io::ErrorKind::Other, 
