@@ -29,9 +29,7 @@ impl Game {
         frame: &mut Frame, 
         _dt: f32
     ) {
-        {
-            let _rp = frame.render_pass_game();
-        }
+        let _rp = frame.render_pass_game();
     }
 
     pub fn handle_resize(&mut self, _size: PhysicalSize<u32>) {
