@@ -57,7 +57,7 @@ impl Instance {
 
         if !self.bounds_check(index) {
             return Err(io::Error::new(io::ErrorKind::Other, 
-                "ERROR::r_inst_index::modify_instance()::index out of bounds"))
+                "ERROR::r_instance::modify_instance()::index out of bounds"))
         }
 
         match &self.inst_buffer {
@@ -69,7 +69,7 @@ impl Instance {
             },
             None => {
                 return Err(io::Error::new(io::ErrorKind::Other, 
-                    "ERROR::r_inst_index::modify_instance()::invalid instance buffer"))
+                    "ERROR::r_instance::modify_instance()::invalid instance buffer"))
             }
         }
 
@@ -79,7 +79,7 @@ impl Instance {
     pub fn remove_instance(&mut self, device: &Device, index: usize) -> Result<usize, io::Error> {
         if !self.bounds_check(index) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
-                "ERROR::r_inst_index::remove_instance()::index out of bounds"))
+                "ERROR::r_instance::remove_instance()::index out of bounds"))
         }
 
         let last = self.inst_list.len() - 1;
@@ -89,6 +89,15 @@ impl Instance {
         self.inst_buffer = Some(Instance::create_inst_buffer(device, &self.inst_list));
 
         Ok(last)
+    }
+
+    pub fn get_instance(&self, index: usize) -> Result<&InstanceBuffer, io::Error> {
+        if !self.bounds_check(index) {
+            return Err(io::Error::new(io::ErrorKind::NotFound,
+                "ERROR::r_instance::get_instance()::index out of bounds"));
+        }
+
+        return Ok(&self.inst_list[index]);
     }
 
     fn create_inst_buffer(

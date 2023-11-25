@@ -47,7 +47,7 @@ impl Camera {
         let zfar = 1000.0;
         
         Self {
-            projection: Camera::projection(width, height, znear, zfar),
+            projection: Camera::create_projection(width, height, znear, zfar),
             eye: Point3::new(0.0, 0.0, -1.0),
             target: Point3::new(0.0, 0.0, 0.0),
             up: Vector3::unit_y(),
@@ -62,14 +62,8 @@ impl Camera {
         }
     }
 
-    pub fn vp(&self) -> Matrix4<f32> {
-        let view = Matrix4::look_at_rh(self.eye, self.target, self.up);
-
-        return OPENGL_TO_WGPU_MATRIX * self.projection * view;
-    }
-
     pub fn modify_buffer(&mut self, queue: &Queue) -> Result<(), io::Error> {
-        let vp = self.vp();
+        let vp = self.create_vp();
 
         match &mut self.camera_buffer {
             Some(c_buffer) => {
@@ -91,10 +85,16 @@ impl Camera {
     }
 
     pub fn handle_resize(&mut self, w: f32, h: f32) {
-        self.projection = Camera::projection(w, h, self.znear, self.zfar);
+        self.projection = Camera::create_projection(w, h, self.znear, self.zfar);
     }
 
-    fn projection(w: f32, h: f32, near: f32, far: f32) -> Matrix4<f32> {
+    fn create_vp(&self) -> Matrix4<f32> {
+        let view = Matrix4::look_at_rh(self.eye, self.target, self.up);
+
+        return OPENGL_TO_WGPU_MATRIX * self.projection * view;
+    }
+
+    fn create_projection(w: f32, h: f32, near: f32, far: f32) -> Matrix4<f32> {
         cgmath::ortho(
             w / 2.0,
             -w / 2.0,

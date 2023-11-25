@@ -1,9 +1,9 @@
 struct VertexIn {
     @location(0) pos: vec3<f32>,
-    @location(1) color: vec4<f32>,
 }
 
 struct InstanceIn {
+    @location(1) color: vec4<f32>,
     @location(2) model_0: vec4<f32>,
     @location(3) model_1: vec4<f32>,
     @location(4) model_2: vec4<f32>,
@@ -35,7 +35,7 @@ fn vs_main(
     );
 
     var out: VertexOut;
-    out.color = in.color;
+    out.color = instance.color;
     out.pos = camera.vp * model * vec4<f32>(in.pos, 1.0);
 
     return out;
