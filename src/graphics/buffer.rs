@@ -39,7 +39,7 @@ impl Layout for VertexBuffer {
 #[derive(bytemuck::Pod, bytemuck::Zeroable)]
 #[derive(Serialize, Deserialize)]
 pub struct InstanceBuffer {
-    model: [[f32; 4]; 4],
+    pub model: [[f32; 4]; 4],
 }
 
 impl Layout for InstanceBuffer {

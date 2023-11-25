@@ -3,7 +3,7 @@ use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
 use super::{Vertex, OnDeserialization};
-use crate::graphics::{VertexBuffer, Shader};
+use crate::graphics::{buffer::VertexBuffer, shader::Shader};
 
 #[derive(Serialize, Deserialize)]
 pub struct Index {
@@ -24,9 +24,10 @@ impl Index {
         buffer_list: Vec<VertexBuffer>,
         index_list: Vec<u16>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<Self, io::Error> {
         
-        let r_vertex = Vertex::new(hash, device, config, shader, buffer_list, buffer_layouts)?;
+        let r_vertex = Vertex::new(hash, device, config, shader, buffer_list, buffer_layouts, bind_layouts)?;
         let index_buffer = Some(Index::create_index_buffer(device, &index_list));
         let index_count = index_list.len() as u32;
 
@@ -45,10 +46,11 @@ impl Index {
         shader: &Shader,
         buffer_list: Vec<VertexBuffer>,
         index_list: Vec<u16>,
-        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
+        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), io::Error> {
 
-        self.r_vertex.modify(device, config, shader, buffer_list, buffer_layouts)?;
+        self.r_vertex.modify(device, config, shader, buffer_list, buffer_layouts, bind_layouts)?;
         self.index_buffer = Some(Index::create_index_buffer(device, &index_list));
         self.index_count = index_list.len() as u32;
         self.index_list = index_list;
@@ -74,11 +76,12 @@ impl OnDeserialization for Index {
         &mut self, 
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
-        shader: &crate::graphics::Shader,
-        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
+        shader: &Shader,
+        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), std::io::Error> {
 
-        self.r_vertex.init(device, config, shader, buffer_layouts)?;
+        self.r_vertex.init(device, config, shader, buffer_layouts, bind_layouts)?;
         self.index_buffer = Some(Index::create_index_buffer(device, &self.index_list));
 
         Ok(())

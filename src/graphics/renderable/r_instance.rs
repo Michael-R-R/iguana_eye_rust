@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use wgpu::{Device, util::DeviceExt, Queue, BufferAddress};
 
 use super::OnDeserialization;
-use crate::graphics::InstanceBuffer;
+use crate::graphics::buffer::InstanceBuffer;
 
 #[derive(Serialize, Deserialize)]
 pub struct Instance {
@@ -113,8 +113,9 @@ impl OnDeserialization for Instance {
         &mut self, 
         device: &wgpu::Device,
         _config: &wgpu::SurfaceConfiguration,
-        _shader: &crate::graphics::Shader,
-        _buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
+        _shader: &crate::graphics::shader::Shader,
+        _buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        _bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), std::io::Error> {
         
         self.inst_buffer = Some(Instance::create_inst_buffer(device, &self.inst_list));

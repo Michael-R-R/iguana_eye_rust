@@ -4,7 +4,8 @@ use serde::{Serialize, Deserialize};
 use wgpu::{Device, SurfaceConfiguration};
 
 use super::{Index, Instance, OnDeserialization};
-use crate::graphics::{InstanceBuffer, Shader, VertexBuffer, Layout};
+use crate::graphics::shader::Shader;
+use crate::graphics::buffer::{VertexBuffer, InstanceBuffer, Layout};
 
 #[derive(Serialize, Deserialize)]
 pub struct InstanceIndex {
@@ -22,11 +23,12 @@ impl InstanceIndex {
         index_list: Vec<u16>,
         inst_list: Vec<InstanceBuffer>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<Self, io::Error> {
 
         buffer_layouts.insert(0, InstanceBuffer::layout());
 
-        let r_index = Index::new(hash, device, config, shader, buffer_list, index_list, buffer_layouts)?;
+        let r_index = Index::new(hash, device, config, shader, buffer_list, index_list, buffer_layouts, bind_layouts)?;
         let r_instance = Instance::new(device, inst_list)?;
 
         Ok(Self {
@@ -43,12 +45,13 @@ impl InstanceIndex {
         buffer_list: Vec<VertexBuffer>,
         index_list: Vec<u16>,
         inst_list: Vec<InstanceBuffer>,
-        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
+        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), io::Error> {
 
         buffer_layouts.insert(0, InstanceBuffer::layout());
 
-        self.r_index.modify(device, config, shader, buffer_list, index_list, buffer_layouts)?;
+        self.r_index.modify(device, config, shader, buffer_list, index_list, buffer_layouts, bind_layouts)?;
         self.r_instance.modify(device, inst_list)?;
 
         Ok(())
@@ -61,11 +64,12 @@ impl OnDeserialization for InstanceIndex {
         device: &Device,
         config: &SurfaceConfiguration,
         shader: &Shader,
-        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
+        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), std::io::Error> {
         
-        self.r_index.init(device, config, shader, buffer_layouts)?;
-        self.r_instance.init(device, config, shader, buffer_layouts)?;
+        self.r_index.init(device, config, shader, buffer_layouts, bind_layouts)?;
+        self.r_instance.init(device, config, shader, buffer_layouts, bind_layouts)?;
 
         Ok(())
     }

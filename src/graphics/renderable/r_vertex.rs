@@ -1,8 +1,10 @@
 use std::io;
+use wgpu::BindGroupLayout;
 use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
-use crate::graphics::{VertexBuffer, Shader, Layout};
+use crate::graphics::shader::Shader;
+use crate::graphics::buffer::{VertexBuffer, Layout};
 
 #[derive(Serialize, Deserialize)]
 pub struct Vertex {
@@ -25,9 +27,10 @@ impl Vertex {
         shader: &Shader,
         buffer_list: Vec<VertexBuffer>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&BindGroupLayout>
     ) -> Result<Self, io::Error> {
 
-        let pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts)?);
+        let pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts, bind_layouts)?);
         let vertex_buffer = Some(Vertex::create_vertex_buffer(device, &buffer_list));
         let shader_hash = shader.hash;
 
@@ -47,9 +50,10 @@ impl Vertex {
         shader: &Shader,
         buffer_list: Vec<VertexBuffer>,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&BindGroupLayout>
     ) -> Result<(), io::Error> {
 
-        self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts)?);
+        self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts, bind_layouts)?);
         self.vertex_buffer = Some(Vertex::create_vertex_buffer(device, &buffer_list));
         self.shader_hash = shader.hash;
 
@@ -61,13 +65,14 @@ impl Vertex {
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&BindGroupLayout>
     ) -> Result<wgpu::RenderPipeline, io::Error> {
 
             buffer_layouts.insert(0, VertexBuffer::layout());
 
             let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: None,
-                bind_group_layouts: &[],
+                bind_group_layouts: &bind_layouts,
                 push_constant_ranges: &[]
             });
 
@@ -135,11 +140,12 @@ impl super::OnDeserialization for Vertex {
         &mut self, 
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
-        shader: &crate::graphics::Shader,
-        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>
+        shader: &Shader,
+        buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
+        bind_layouts: &Vec<&BindGroupLayout>
     ) -> Result<(), std::io::Error> {
         
-        self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts)?); 
+        self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts, bind_layouts)?); 
         self.vertex_buffer = Some(Vertex::create_vertex_buffer(device, &self.buffer_list));
 
         Ok(())
