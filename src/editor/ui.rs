@@ -33,10 +33,10 @@ impl UI {
             imgui_winit_support::HiDpiMode::Default);
 
         // Set imgui ini path
-        match file::absolute_path(".\\config\\editor\\imgui") {
+        match file::absolute_path("./config/editor/imgui") {
             Ok(val) => {
                 let mut abs_path = String::from(val);
-                abs_path.push_str("\\imgui.ini");
+                abs_path.push_str("/imgui.ini");
                 let path = std::path::PathBuf::from(abs_path);
                 imgui.set_ini_filename(path);
             },
