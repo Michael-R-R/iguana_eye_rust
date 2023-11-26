@@ -4,10 +4,9 @@ use imgui::*;
 use imgui::{Context, ConfigFlags, FontSource};
 use imgui_wgpu::{Renderer, RendererConfig};
 use imgui_winit_support::WinitPlatform;
-use wgpu::RenderPass;
 use winit::{window::Window, dpi::PhysicalSize};
 use winit::event::{KeyboardInput, ModifiersState, MouseButton, Event, ElementState};
-use crate::app::Viewport;
+use crate::app::{Viewport, Frame};
 use crate::game::Game;
 use crate::util::file;
 
@@ -85,13 +84,13 @@ impl UI {
             .update_delta_time(Duration::from_secs_f32(dt));
     }
 
-    pub fn handle_render<'a>(
-        &'a mut self, 
+    pub fn handle_render<'a>(&'a mut self, 
         window: &Window, 
         viewport: &Viewport, 
         _game: &Game,
-        rp: &mut RenderPass<'a>, 
+        frame: &mut Frame, 
         _dt: f32) {
+
         self.platform.prepare_frame(self.imgui.io_mut(), window)
             .expect("ERROR::editor::ui::render()::failed to prepare frame");
 
@@ -122,13 +121,19 @@ impl UI {
                 });
         }
 
-        self.platform.prepare_render(ui, window);
-        self.renderer.render(
-            self.imgui.render(),
-            &viewport.queue,
-            &viewport.device,
-            rp
-        ).expect("ERROR::editor::ui::render()::failed to render");
+        // Rendering done here
+        {
+            let mut rp = frame.render_pass_ui();
+
+            self.platform.prepare_render(ui, window);
+            self.renderer.render(
+                self.imgui.render(),
+                &viewport.queue,
+                &viewport.device,
+                &mut rp
+            ).expect("ERROR::editor::ui::render()::failed to render");
+        }
+        
     }
 
     pub fn handle_modifiers(&self, _mod: &ModifiersState) {

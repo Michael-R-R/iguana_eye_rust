@@ -12,6 +12,7 @@ use crate::game::Game;
 use crate::editor::UI;
 use crate::util::file;
 use crate::util::serialize;
+
 pub struct Application {
     pub width: u32,
     pub height: u32,
@@ -131,9 +132,8 @@ impl Application {
         let viewport = &self.viewport;
         let mut frame = Frame::begin(&self.viewport);
         {
-            let mut rp = frame.render_pass();
-            self.game.handle_render(window, &rp, dt);
-            self.ui.handle_render(window, viewport, &self.game, &mut rp, dt);
+            self.game.handle_render(window, viewport, &mut frame, dt);
+            self.ui.handle_render(window, viewport, &self.game, &mut frame, dt);
         }
         frame.end(&self.viewport);
     }

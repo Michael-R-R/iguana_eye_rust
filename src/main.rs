@@ -3,6 +3,7 @@ use winit::event_loop::EventLoop;
 mod tests;
 mod app;
 mod game;
+mod graphics;
 mod editor;
 mod sys;
 mod util;
