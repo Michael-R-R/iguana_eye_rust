@@ -37,6 +37,6 @@ impl Component {
     }
 
     pub fn bounds_check(&self, index: usize) -> bool {
-        return index > 0 && index < self.entities.len()
+        return index < self.entities.len()
     }
 }
