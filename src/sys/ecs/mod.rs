@@ -1,5 +1,6 @@
 pub mod entity;
 pub mod entity_manager;
+pub mod component_manager;
 
 use serde::{Serialize, Deserialize};
 use entity::Entity;

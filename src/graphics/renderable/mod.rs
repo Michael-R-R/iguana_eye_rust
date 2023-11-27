@@ -10,7 +10,7 @@ pub use self::r_instance::Instance;
 pub use self::r_inst_vertex::InstanceVertex;
 pub use self::r_inst_index::InstanceIndex;
 
-pub trait OnDeserialization {
+pub trait Deserialized {
     fn init(
         &mut self, 
         device: &wgpu::Device,

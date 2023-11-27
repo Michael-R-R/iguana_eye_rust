@@ -135,7 +135,7 @@ impl Vertex {
     }
 }
 
-impl super::OnDeserialization for Vertex {
+impl super::Deserialized for Vertex {
     fn init(
         &mut self, 
         device: &wgpu::Device,

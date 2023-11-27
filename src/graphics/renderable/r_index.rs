@@ -2,7 +2,7 @@ use std::io;
 use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
-use super::{Vertex, OnDeserialization};
+use super::{Vertex, Deserialized};
 use crate::graphics::{buffer::VertexBuffer, shader::Shader};
 
 #[derive(Serialize, Deserialize)]
@@ -71,7 +71,7 @@ impl Index {
     }
 }
 
-impl OnDeserialization for Index {
+impl Deserialized for Index {
     fn init(
         &mut self, 
         device: &wgpu::Device,
