@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
-use winit::window::Window;
 use std::{collections::HashSet, io};
 use super::{Component, Componentable};
+use crate::game::Game;
 use crate::{system::ecs::Entity, app::Viewport};
 use crate::util::hash;
 
@@ -26,11 +26,19 @@ impl Data {
 pub struct NameComponent {
     pub component: Component,
     data: Data,
-    hash_repo: HashSet<u64>,
+    hash_list: HashSet<u64>,
 }
 
 #[typetag::serde]
 impl Componentable for NameComponent {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self as &dyn std::any::Any
+    }
+
+    fn as_any_mut(&mut self) -> &dyn std::any::Any {
+        self as &mut dyn std::any::Any
+    }
+
     fn attach(&mut self, entity: Entity) -> Result<usize, std::io::Error> {
         if self.component.does_exist(&entity) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
@@ -59,7 +67,7 @@ impl Componentable for NameComponent {
         let swapped = self.data.entity[last];
 
         let hash = self.data.name[to_remove].0;
-        self.hash_repo.remove(&hash);
+        self.hash_list.remove(&hash);
 
         self.data.entity.swap(to_remove, last);
         self.data.name.swap(to_remove, last);
@@ -75,11 +83,11 @@ impl Componentable for NameComponent {
         return Ok(())
     }
 
-    fn handle_update(&mut self, _dt: f32, _window: &Window) {
+    fn handle_update(&mut self, _dt: f32, _game: &Game) {
 
     }
 
-    fn handle_render(&mut self, _dt: f32, _window: &Window, _viewport: &Viewport){
+    fn handle_render(&mut self, _dt: f32, _game: &Game, _viewport: &Viewport){
 
     }
 }
@@ -89,7 +97,7 @@ impl NameComponent {
         Self {
             component: Component::new(),
             data: Data::new(),
-            hash_repo: HashSet::from([0])
+            hash_list: HashSet::from([0])
         }
     }
 
@@ -116,7 +124,7 @@ impl NameComponent {
 
         let val = self.hash_name(name);
 
-        self.hash_repo.insert(val.0);
+        self.hash_list.insert(val.0);
         self.data.name[index] = val;
 
         return true
@@ -154,7 +162,7 @@ impl NameComponent {
         let mut temp = name.clone();
         let mut count = 0;
 
-        while self.hash_repo.contains(&hash) {
+        while self.hash_list.contains(&hash) {
             temp = name.clone() + "_" + &count.to_string();
             hash = hash::hasher(&temp);
             count += 1;

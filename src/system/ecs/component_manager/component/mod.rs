@@ -2,15 +2,17 @@ pub mod name_component;
 
 #[typetag::serde(tag = "type")]
 pub trait Componentable {
+    fn as_any(&self) -> &dyn std::any::Any;
+    fn as_any_mut(&mut self) -> &dyn std::any::Any;
     fn attach(&mut self, entity: Entity) -> Result<usize, std::io::Error>;
     fn detach(&mut self, entity: Entity) -> Result<(), std::io::Error>;
-    fn handle_update(&mut self, dt: f32, window: &Window);
-    fn handle_render(&mut self, dt: f32, window: &Window, viewport: &Viewport);
+    fn handle_update(&mut self, dt: f32, game: &Game);
+    fn handle_render(&mut self, dt: f32, game: &Game, viewport: &Viewport);
 }
 
 use std::collections::HashMap;
-use winit::window::Window;
 use serde::{Serialize, Deserialize};
+use crate::game::Game;
 use crate::{system::ecs::Entity, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
