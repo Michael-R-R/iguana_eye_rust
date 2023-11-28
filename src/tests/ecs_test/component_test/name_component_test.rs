@@ -1,7 +1,7 @@
 use cgmath::num_traits::sign;
 
-use crate::sys::ecs::component_manager::component::{name_component, Componentable};
-use crate::sys::ecs::entity::Entity;
+use crate::system::ecs::component_manager::component::{name_component, Componentable};
+use crate::system::ecs::entity::Entity;
 use crate::util::hash;
 
 #[test]

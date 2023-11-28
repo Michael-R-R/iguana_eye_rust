@@ -20,4 +20,6 @@ impl ECS {
             component_manager: ComponentManager::new(),
         }
     }
+
+    // TODO add functions
 }

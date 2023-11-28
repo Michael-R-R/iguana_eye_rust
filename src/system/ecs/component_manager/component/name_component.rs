@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use winit::window::Window;
 use std::{collections::HashSet, io};
 use super::{Component, Componentable};
-use crate::{sys::ecs::Entity, app::Viewport};
+use crate::{system::ecs::Entity, app::Viewport};
 use crate::util::hash;
 
 #[derive(Serialize, Deserialize)]
