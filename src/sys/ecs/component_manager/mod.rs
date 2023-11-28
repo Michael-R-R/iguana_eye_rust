@@ -12,5 +12,10 @@ pub struct ComponentManager {
 }
 
 impl ComponentManager {
-
+    pub fn new() -> Self {
+        Self {
+            indices: HashMap::new(),
+            components: Vec::new(),
+        }
+    }
 }
