@@ -3,9 +3,10 @@ use crate::system::ecs::component_manager::{*, component::{*, name_component::Na
 
 #[test]
 fn has_component() {
-    let cm = ComponentManager::new();
+    let mut cm = ComponentManager::new();
 
-    assert!(cm.has::<name_component::NameComponent>());
+    assert!(cm.add(Box::new(name_component::NameComponent::new())).is_ok());
+    assert!(cm.add(Box::new(name_component::NameComponent::new())).is_err());
 }
 
 #[test]
@@ -21,6 +22,7 @@ fn remove_component() {
 #[test]
 fn get_component() {
     let mut cm = ComponentManager::new();
+    _ = cm.add(Box::new(name_component::NameComponent::new()));
 
     let nc = cm.get::<name_component::NameComponent>().unwrap();
     assert_ne!(TypeId::of::<ComponentManager>(), nc.as_any().type_id());

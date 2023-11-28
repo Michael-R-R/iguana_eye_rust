@@ -1,4 +1,5 @@
 pub mod name_component;
+pub mod hierarchy_component;
 
 #[typetag::serde(tag = "type")]
 pub trait Componentable {

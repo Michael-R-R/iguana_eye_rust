@@ -8,8 +8,6 @@ use component::Componentable;
 
 use crate::util::hash;
 
-use self::component::name_component::NameComponent;
-
 #[derive(Serialize, Deserialize)]
 pub struct ComponentManager {
     indices: HashMap<u64, usize>,
@@ -18,14 +16,10 @@ pub struct ComponentManager {
 
 impl ComponentManager {
     pub fn new() -> Self {
-        let mut obj = Self {
+        Self {
             indices: HashMap::new(),
             components: Vec::new(),
-        };
-
-        _ = obj.add(Box::new(NameComponent::new()));
-
-        return obj
+        }
     }
 
     pub fn add(&mut self, c: Box<dyn Componentable>) -> Result<(), io::Error> {
