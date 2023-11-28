@@ -61,7 +61,7 @@ fn entity_swap_matches() {
 fn name_matches() {
     let mut nc = name_component::NameComponent::new();
 
-    let hash = hash::hasher(&String::from("name"));
+    let hash = hash::get(&String::from("name"));
     let e = Entity::new(1 as u64);
     let index = nc.attach(e).unwrap();
     nc.set_name(index, String::from("name"));
@@ -69,7 +69,7 @@ fn name_matches() {
     assert_eq!(hash, pair.0);
     assert_eq!(String::from("name"), pair.1);
 
-    let hash = hash::hasher(&String::from("name_0"));
+    let hash = hash::get(&String::from("name_0"));
     let e = Entity::new(2 as u64);
     let index = nc.attach(e).unwrap();
     nc.set_name(index, String::from("name"));

@@ -2,12 +2,14 @@ pub mod name_component;
 
 #[typetag::serde(tag = "type")]
 pub trait Componentable {
-    fn as_any(&self) -> &dyn std::any::Any;
-    fn as_any_mut(&mut self) -> &dyn std::any::Any;
     fn attach(&mut self, entity: Entity) -> Result<usize, std::io::Error>;
     fn detach(&mut self, entity: Entity) -> Result<(), std::io::Error>;
     fn handle_update(&mut self, dt: f32, game: &Game);
     fn handle_render(&mut self, dt: f32, game: &Game, viewport: &Viewport);
+    fn is_empty(&self) -> bool;
+    fn get_hash(&self) -> u64;
+    fn as_any(&self) -> &dyn std::any::Any;
+    fn as_any_mut(&mut self) -> &dyn std::any::Any;
 }
 
 use std::collections::HashMap;

@@ -31,14 +31,6 @@ pub struct NameComponent {
 
 #[typetag::serde]
 impl Componentable for NameComponent {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self as &dyn std::any::Any
-    }
-
-    fn as_any_mut(&mut self) -> &dyn std::any::Any {
-        self as &mut dyn std::any::Any
-    }
-
     fn attach(&mut self, entity: Entity) -> Result<usize, std::io::Error> {
         if self.component.does_exist(&entity) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
@@ -90,6 +82,23 @@ impl Componentable for NameComponent {
     fn handle_render(&mut self, _dt: f32, _game: &Game, _viewport: &Viewport){
 
     }
+
+    fn is_empty(&self) -> bool {
+        return self.component.entities.is_empty()
+    }
+
+    fn get_hash(&self) -> u64
+    {
+        hash::get(&String::from(std::any::type_name::<NameComponent>()))
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self as &dyn std::any::Any
+    }
+
+    fn as_any_mut(&mut self) -> &dyn std::any::Any {
+        self as &mut dyn std::any::Any
+    }
 }
 
 impl NameComponent {
@@ -135,7 +144,7 @@ impl NameComponent {
             return false
         }
 
-        let hash = hash::hasher(&name);
+        let hash = hash::get(&name);
         return self.data.tags[index].insert((hash, name))
     }
 
@@ -144,7 +153,7 @@ impl NameComponent {
             return false
         }
 
-        let hash = hash::hasher(&name);
+        let hash = hash::get(&name);
         return self.data.tags[index].remove(&(hash, name))
     }
 
@@ -153,18 +162,18 @@ impl NameComponent {
             return false
         }
 
-        let hash = hash::hasher(&name);
+        let hash = hash::get(&name);
         return self.data.tags[index].contains(&(hash, name))
     }
 
     fn hash_name(&self, name: String) -> (u64, String) {
-        let mut hash = hash::hasher(&name);
+        let mut hash = hash::get(&name);
         let mut temp = name.clone();
         let mut count = 0;
 
         while self.hash_list.contains(&hash) {
             temp = name.clone() + "_" + &count.to_string();
-            hash = hash::hasher(&temp);
+            hash = hash::get(&temp);
             count += 1;
         }
 
