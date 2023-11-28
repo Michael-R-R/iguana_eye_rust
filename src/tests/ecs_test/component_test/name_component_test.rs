@@ -39,6 +39,25 @@ fn remove_entities() {
 }
 
 #[test]
+fn entity_swap_matches() {
+    let mut nc = name_component::NameComponent::new();
+
+    let count = 3;
+    for i in 1..=count {
+        let e = Entity::new(i as u64);
+        let _ = nc.attach(e).unwrap();
+    }
+
+    let index = nc.component.entities[&Entity::new(3)];
+    assert_eq!(2, index);
+
+    let _ = nc.detach(Entity::new(1));
+    let index = nc.component.entities[&Entity::new(3)];
+
+    assert_eq!(0, index)
+}
+
+#[test]
 fn name_matches() {
     let mut nc = name_component::NameComponent::new();
 
