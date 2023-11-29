@@ -33,7 +33,7 @@ pub struct NameComponent {
 impl Componentable for NameComponent {
     fn attach(&mut self, entity: Entity) -> Result<usize, std::io::Error> {
         if self.component.does_exist(&entity) {
-            return Err(io::Error::new(io::ErrorKind::NotFound,
+            return Err(io::Error::new(io::ErrorKind::Other,
                 "ERROR::NameComponent::attach()::entity already exist"))
         }
 
