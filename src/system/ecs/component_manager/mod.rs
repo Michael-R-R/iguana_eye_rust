@@ -36,7 +36,7 @@ impl ComponentManager {
         return Ok(())
     }
 
-    pub fn insert<T: Componentable>(
+    pub fn insert(
         &mut self, 
         index: usize, 
         c: Box<dyn Componentable>
@@ -60,7 +60,7 @@ impl ComponentManager {
         Ok(())
     }
 
-    pub fn remove<T: Componentable>(&mut self) -> Result<(), std::io::Error> {
+    pub fn remove<T: Componentable>(&mut self) -> Result<(), io::Error> {
         let hash = hash::get(&String::from(std::any::type_name::<T>()));
         if !self.indices.contains_key(&hash) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
@@ -69,7 +69,7 @@ impl ComponentManager {
 
         let index = self.indices[&hash];
         let c = &self.components[index];
-        if c.is_empty() {
+        if !c.is_empty() {
             return Err(io::Error::new(io::ErrorKind::NotFound,
                 "ERROR::ComponentManager::remove()::component not empty"))
         }
@@ -93,6 +93,11 @@ impl ComponentManager {
     pub fn has<T: Componentable>(&self) -> bool {
         let hash = hash::get(&String::from(std::any::type_name::<T>()));
         return self.indices.contains_key(&hash)
+    }
+
+    pub fn find_index<T: Componentable>(&self) -> Option<usize> {
+        let hash = hash::get(&String::from(std::any::type_name::<T>()));
+        Some(*self.indices.get(&hash)?)
     }
 
     fn update_indices(&mut self, start: usize) {
