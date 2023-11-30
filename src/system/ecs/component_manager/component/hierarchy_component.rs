@@ -26,7 +26,7 @@ impl Data {
 
 #[derive(Serialize, Deserialize)]
 pub struct HierarchyComponent {
-    component: Component,
+    pub component: Component,
     data: Data,
 }
 
@@ -84,11 +84,11 @@ impl Componentable for HierarchyComponent {
     }
 
     fn handle_update(&mut self, _dt: f32, _game: &Game) {
-        todo!()
+
     }
 
     fn handle_render(&mut self, _dt: f32, _game: &Game, _viewport: &Viewport) {
-        todo!()
+        
     }
 
     fn is_empty(&self) -> bool {
