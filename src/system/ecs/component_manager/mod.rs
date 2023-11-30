@@ -61,7 +61,7 @@ impl ComponentManager {
     }
 
     pub fn remove<T: Componentable>(&mut self) -> Result<(), io::Error> {
-        let hash = hash::get(&String::from(std::any::type_name::<T>()));
+        let hash = ComponentManager::type_hash::<T>();
         if !self.indices.contains_key(&hash) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
                 "ERROR::ComponentManager::remove()::doesn't exist"))
@@ -82,7 +82,7 @@ impl ComponentManager {
     }
 
     pub fn get<T: Componentable + 'static>(&self) -> Option<&T> {
-        let hash = hash::get(&String::from(std::any::type_name::<T>()));
+        let hash = ComponentManager::type_hash::<T>();
         let index = *self.indices.get(&hash)?;
         let c = self.components.get(index)?;
         let c = c.as_any().downcast_ref::<T>()?;
@@ -90,14 +90,26 @@ impl ComponentManager {
         return Some(c)
     }
 
-    pub fn has<T: Componentable>(&self) -> bool {
-        let hash = hash::get(&String::from(std::any::type_name::<T>()));
-        return self.indices.contains_key(&hash)
+    pub fn get_mut<T: Componentable + 'static>(&mut self) -> Option<&mut T> {
+        let hash = ComponentManager::type_hash::<T>();
+        let index = *self.indices.get(&hash)?;
+        let c = self.components.get_mut(index)?;
+        let c = c.as_any_mut().downcast_mut::<T>()?;
+
+        return Some(c)
     }
 
     pub fn find_index<T: Componentable>(&self) -> Option<usize> {
-        let hash = hash::get(&String::from(std::any::type_name::<T>()));
+        let hash = ComponentManager::type_hash::<T>();
         Some(*self.indices.get(&hash)?)
+    }
+
+    pub fn type_hash<T: Componentable>() -> u64 {
+        hash::get(&String::from(std::any::type_name::<T>()))
+    }
+
+    pub fn has(&self, hash: u64) -> bool {
+        return self.indices.contains_key(&hash)
     }
 
     fn update_indices(&mut self, start: usize) {

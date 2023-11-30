@@ -10,13 +10,13 @@ pub trait Componentable {
     fn is_empty(&self) -> bool;
     fn get_hash(&self) -> u64;
     fn as_any(&self) -> &dyn std::any::Any;
-    fn as_any_mut(&mut self) -> &dyn std::any::Any;
+    fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
 }
 
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-use crate::game::Game;
 use crate::{system::ecs::Entity, app::Viewport};
+use crate::game::Game;
 
 #[derive(Serialize, Deserialize)]
 pub struct Component {

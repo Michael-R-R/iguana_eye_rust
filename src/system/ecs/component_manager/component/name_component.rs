@@ -87,8 +87,7 @@ impl Componentable for NameComponent {
         return self.component.entities.is_empty()
     }
 
-    fn get_hash(&self) -> u64
-    {
+    fn get_hash(&self) -> u64 {
         hash::get(&String::from(std::any::type_name::<NameComponent>()))
     }
 
@@ -96,7 +95,7 @@ impl Componentable for NameComponent {
         self as &dyn std::any::Any
     }
 
-    fn as_any_mut(&mut self) -> &dyn std::any::Any {
+    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
         self as &mut dyn std::any::Any
     }
 }
