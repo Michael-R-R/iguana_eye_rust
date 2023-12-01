@@ -5,8 +5,7 @@ use std::io;
 use serde::{Serialize, Deserialize};
 
 use component::Componentable;
-
-use crate::util::hash;
+use crate::{util::hash, game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 pub struct ComponentManager {
@@ -19,6 +18,18 @@ impl ComponentManager {
         Self {
             indices: HashMap::new(),
             components: Vec::new(),
+        }
+    }
+
+    pub fn handle_update(&mut self, dt: f32, game: &Game) {
+        for c in self.components.iter_mut() {
+            c.handle_update(dt, game);
+        }
+    }
+
+    pub fn handle_render(&mut self, dt: f32, game: &Game, viewport: &Viewport) {
+        for c in self.components.iter_mut() {
+            c.handle_render(dt, game, viewport);
         }
     }
 
@@ -97,6 +108,18 @@ impl ComponentManager {
         let c = c.as_any_mut().downcast_mut::<T>()?;
 
         return Some(c)
+    }
+
+    pub fn get_by_hash(&self, hash: u64) -> Option<&dyn Componentable> {
+        let index = *self.indices.get(&hash)?;
+        let c = self.components.get(index)?;
+        return Some(c.as_ref());
+    }
+
+    pub fn get_by_hash_mut(&mut self, hash: u64) -> Option<&mut dyn Componentable> {
+        let index = *self.indices.get(&hash)?;
+        let c = self.components.get_mut(index)?;
+        return Some(c.as_mut());
     }
 
     pub fn find_index<T: Componentable>(&self) -> Option<usize> {
