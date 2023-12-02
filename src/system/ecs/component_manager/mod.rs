@@ -1,11 +1,15 @@
 pub mod component;
 
-use std::collections::HashMap;
-use std::io;
+use std::collections::{HashMap, HashSet};
+use std::io::{Error, ErrorKind};
 use serde::{Serialize, Deserialize};
 
 use component::Componentable;
 use crate::{util::hash, game::Game, app::Viewport};
+
+use self::component::hierarchy_component::HierarchyComponent;
+
+use super::entity::Entity;
 
 #[derive(Serialize, Deserialize)]
 pub struct ComponentManager {
@@ -33,10 +37,10 @@ impl ComponentManager {
         }
     }
 
-    pub fn add(&mut self, c: Box<dyn Componentable>) -> Result<(), io::Error> {
+    pub fn add(&mut self, c: Box<dyn Componentable>) -> Result<(), Error> {
         let hash = c.get_hash();
         if self.indices.contains_key(&hash) {
-            return Err(io::Error::new(io::ErrorKind::NotFound,
+            return Err(Error::new(ErrorKind::NotFound,
                 "ERROR::ComponentManager::add()::already exist"))
         }
 
@@ -51,16 +55,16 @@ impl ComponentManager {
         &mut self, 
         index: usize, 
         c: Box<dyn Componentable>
-    ) -> Result<(), io::Error> {
+    ) -> Result<(), Error> {
 
         let hash = c.get_hash();
         if self.indices.contains_key(&hash) {
-            return Err(io::Error::new(io::ErrorKind::NotFound,
+            return Err(Error::new(ErrorKind::NotFound,
                 "ERROR::ComponentManager::insert()::already exist"))
         }
 
         if index >= self.components.len() {
-            return Err(io::Error::new(io::ErrorKind::NotFound,
+            return Err(Error::new(ErrorKind::NotFound,
                 "ERROR::ComponentManager::insert()::out of bounds"))
         }
 
@@ -71,17 +75,17 @@ impl ComponentManager {
         Ok(())
     }
 
-    pub fn remove<T: Componentable>(&mut self) -> Result<(), io::Error> {
+    pub fn remove<T: Componentable>(&mut self) -> Result<(), Error> {
         let hash = ComponentManager::type_hash::<T>();
         if !self.indices.contains_key(&hash) {
-            return Err(io::Error::new(io::ErrorKind::NotFound,
+            return Err(Error::new(ErrorKind::NotFound,
                 "ERROR::ComponentManager::remove()::doesn't exist"))
         }
 
         let index = self.indices[&hash];
         let c = &self.components[index];
         if !c.is_empty() {
-            return Err(io::Error::new(io::ErrorKind::NotFound,
+            return Err(Error::new(ErrorKind::NotFound,
                 "ERROR::ComponentManager::remove()::component not empty"))
         }
 
@@ -90,6 +94,40 @@ impl ComponentManager {
         self.update_indices(index);
 
         return Ok(())
+    }
+
+    pub fn has(&self, hash: u64) -> bool {
+        return self.indices.contains_key(&hash)
+    }
+
+    pub fn attach(
+        &mut self, 
+        e: Entity,
+        hash: u64
+    ) -> Result<usize, Error> {
+
+        match self.get_by_hash_mut(hash) {
+            Some(c) => c.attach(e),
+            None => {
+                return Err(Error::new(ErrorKind::NotFound,
+                    "ERROR::component_manager::attach()::cannot find component"));
+            }
+        }
+    }
+
+    pub fn detach(
+        &mut self, 
+        e: Entity,
+        hash: u64
+    ) -> Result<(), Error> {
+
+        match self.get_by_hash_mut(hash) {
+            Some(c) => c.detach(e),
+            None => {
+                return Err(Error::new(ErrorKind::NotFound,
+                    "ERROR::component_manager::detach()::cannot find component"));
+            }
+        }
     }
 
     pub fn get<T: Componentable + 'static>(&self) -> Option<&T> {
@@ -131,8 +169,42 @@ impl ComponentManager {
         hash::get(&String::from(std::any::type_name::<T>()))
     }
 
-    pub fn has(&self, hash: u64) -> bool {
-        return self.indices.contains_key(&hash)
+    pub fn purge_entity(&mut self, e: Entity, hash_list: &HashSet<u64>) -> Result<(), Error> {
+        self.has_children(e)?;
+
+        for hash in hash_list {
+            if let Some(c) = self.get_by_hash_mut(*hash) {
+                c.detach(e)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn has_children(&self, e: Entity) -> Result<(), Error> {
+        match self.get::<HierarchyComponent>() {
+            Some(hc) => {
+                match hc.component.find_index(&e) {
+                    Some(index) => {
+                        let children = hc.get_children(index)?;
+                        if !children.is_empty() {
+                            return Err(Error::new(ErrorKind::Other,
+                                "ERROR::component_manager::has_children()::children list not empty"))
+                        }
+                    },
+                    None => {
+                        return Err(Error::new(ErrorKind::NotFound,
+                            "ERROR::component_manager::has_children()::cannot find index"))
+                    }
+                }
+            },
+            None => {
+                return Err(Error::new(ErrorKind::NotFound,
+                    "ERROR::component_manager::has_children()::cannot find hierarchy component"))
+            }
+        }
+
+        Ok(())
     }
 
     fn update_indices(&mut self, start: usize) {

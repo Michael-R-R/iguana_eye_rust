@@ -2,27 +2,30 @@ pub mod entity;
 pub mod entity_manager;
 pub mod component_manager;
 
-use std::io::{Error, ErrorKind};
+use std::{io::Error, collections::HashSet};
 
 use serde::{Serialize, Deserialize};
 use entity::Entity;
 use entity_manager::EntityManager;
-use component_manager::{ComponentManager, component::Componentable};
-use component_manager::component::{name_component::NameComponent, hierarchy_component::HierarchyComponent};
+use component_manager::{ComponentManager, component::*, component::Componentable};
 use crate::{game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 pub struct ECS {
-    pub component_manager: ComponentManager,
     entity_manager: EntityManager,
+    component_manager: ComponentManager,
 }
 
 impl ECS {
-    pub fn new() -> Self {
-        Self {
-            component_manager: ComponentManager::new(),
+    pub fn new() -> Result<Self, Error> {
+        let mut component_manager = ComponentManager::new();
+        component_manager.add(Box::new(name_component::NameComponent::new()))?;
+        component_manager.add(Box::new(hierarchy_component::HierarchyComponent::new()))?;
+
+        Ok(Self {
+            component_manager,
             entity_manager: EntityManager::new(),
-        }
+        })
     }
 
     pub fn handle_update(&mut self, dt: f32, game: &Game) {
@@ -33,45 +36,51 @@ impl ECS {
         self.component_manager.handle_render(dt, game, viewport);
     }
 
+    pub fn add_component(&mut self, c: Box<dyn Componentable>) -> Result<(), Error> {
+        self.component_manager.add(c)
+    }
+
+    pub fn insert_component(
+        &mut self, 
+        index: usize, 
+        c: Box<dyn Componentable>
+    ) -> Result<(), Error> {
+        self.component_manager.insert(index, c)
+    }
+
+    pub fn remove_component<T: Componentable>(&mut self) -> Result<(), Error> {
+        self.component_manager.remove::<T>()
+    }
+
+    pub fn get_component<T: Componentable + 'static>(&self) -> Option<&T> {
+        self.component_manager.get::<T>()
+    }
+
+    pub fn get_component_mut<T: Componentable + 'static>(&mut self) -> Option<&mut T> {
+        self.component_manager.get_mut::<T>()
+    }
+
+    pub fn get_component_by_hash(&self, hash: u64) -> Option<&dyn Componentable> {
+        self.component_manager.get_by_hash(hash)
+    }
+
+    pub fn get_component_by_hash_mut(&mut self, hash: u64) -> Option<&mut dyn Componentable> {
+        self.component_manager.get_by_hash_mut(hash)
+    }
+
     pub fn create_entity(&mut self) -> Result<Entity, Error> {
         let e = self.entity_manager.create();
-        self.attach_component::<NameComponent>(e)?;
-        self.attach_component::<HierarchyComponent>(e)?;
+        self.attach_component::<name_component::NameComponent>(e)?;
+        self.attach_component::<hierarchy_component::HierarchyComponent>(e)?;
 
         Ok(e)
     }
 
     pub fn remove_entity(&mut self, e: Entity) -> Result<(), Error> {
-        // Check if this entity has any children
-        match self.component_manager.get::<HierarchyComponent>() {
-            Some(hc) => {
-                match hc.component.find_index(&e) {
-                    Some(index) => {
-                        let children = hc.get_children(index)?;
-                        if !children.is_empty() {
-                            return Err(Error::new(ErrorKind::Other,
-                                "ERROR::ecs::remove_entity()::children list not empty"))
-                        }
-                    },
-                    None => {
-                        return Err(Error::new(ErrorKind::NotFound,
-                            "ERROR::ecs::remove_entity()::cannot find index"))
-                    }
-                }
-            },
-            None => {
-                return Err(Error::new(ErrorKind::NotFound,
-                    "ERROR::ecs::remove_entity()::cannot find hierarchy component"))
-            }
-        };
 
-        // Remove entity from all attached components
-        if let Some(attached) = self.entity_manager.get_components(e) {
-            for hash in attached {
-                if let Some(c) = self.component_manager.get_by_hash_mut(*hash) {
-                    c.detach(e)?;
-                }
-            }
+        // purge entity from all attached components
+        if let Some(hash_list) = self.entity_manager.get_attached(e) {
+            self.component_manager.purge_entity(e, hash_list)?;
         }
 
         self.entity_manager.remove(e);
@@ -85,23 +94,12 @@ impl ECS {
     ) -> Result<usize, Error> {
 
         let hash = ComponentManager::type_hash::<T>();
-        if !self.component_manager.has(hash) {
-            return Err(Error::new(ErrorKind::NotFound,
-                "ERROR::ecs::attach_component()::cannot find component"));
-        }
-
-        if !self.entity_manager.attach_component(e, hash) {
-            return Err(Error::new(ErrorKind::Other,
-                "ERROR::ecs::attach_component()::cannot attach component"));
-        }
-
-        match self.component_manager.get_mut::<T>() {
-            Some(c) => c.attach(e),
-            None => {
-                self.entity_manager.detach_component(e, hash);
-                Err(Error::new(ErrorKind::NotFound,
-                    "ERROR::ecs::attach_component()::cannot get component"))
-            }
+        match self.component_manager.attach(e, hash) {
+            Ok(index) => {
+                self.entity_manager.attach_component(e, hash);
+                return Ok(index)
+            },
+            Err(e) => return Err(e)
         }
     }
 
@@ -111,22 +109,28 @@ impl ECS {
     ) -> Result<(), Error> {
 
         let hash = ComponentManager::type_hash::<T>();
-        if !self.component_manager.has(hash) {
-            return Err(Error::new(ErrorKind::NotFound,
-                "ERROR::ecs::detach_component()::cannot find component"));
+        match self.component_manager.detach(e, hash) {
+            Ok(()) => {
+                self.entity_manager.detach_component(e, hash);
+                return Ok(())
+            },
+            Err(e) => return Err(e)
         }
+    }
 
-        if !self.entity_manager.detach_component(e, hash) {
-            return Err(Error::new(ErrorKind::Other,
-                "ERROR::ecs::detach_component()::cannot detach component"));
-        }
+    pub fn get_attached(&self, entity: Entity) -> Option<&HashSet<u64>> {
+        self.entity_manager.get_attached(entity)
+    }
 
-        match self.component_manager.get_mut::<T>() {
-            Some(c) => c.detach(e),
-            None => {
-                return Err(Error::new(ErrorKind::NotFound,
-                    "ERROR::ecs::detach_component()::cannot get component"));
-            }
-        }
+    pub fn does_entity_exist(&self, entity: Entity) -> bool {
+        self.entity_manager.does_exist(entity)
+    }
+
+    pub fn has_component(&self, entity: Entity, component: u64) -> bool {
+        self.entity_manager.has_component(entity, component)
+    }
+
+    pub fn count(&self) -> usize {
+        self.entity_manager.count()
     }
 }

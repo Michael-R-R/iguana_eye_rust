@@ -67,7 +67,7 @@ impl EntityManager {
         }
     }
 
-    pub fn get_components(&self, entity: Entity) -> Option<&HashSet<u64>> {
+    pub fn get_attached(&self, entity: Entity) -> Option<&HashSet<u64>> {
         return self.entities.get(&entity)
     }
 
@@ -84,7 +84,7 @@ impl EntityManager {
         }
     }
 
-    pub fn entity_count(&self) -> usize {
+    pub fn count(&self) -> usize {
         return self.entities.len()
     }
 }
