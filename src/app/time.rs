@@ -7,7 +7,10 @@ pub struct Time {
 
 impl Time {
     pub fn new() -> Self {
-        Self { last_time: Instant::now(), dt: 0.0 }
+        Self { 
+            last_time: Instant::now(), 
+            dt: 0.0 
+        }
     }
 
     pub fn update(&mut self) -> f32 {
