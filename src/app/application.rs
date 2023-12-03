@@ -8,8 +8,8 @@ use super::Config;
 use super::Viewport;
 use super::Frame;
 use super::Time;
-use crate::system::game::Game;
-use crate::system::editor::UI;
+use crate::game::Game;
+use crate::editor::UI;
 use crate::util::file;
 use crate::util::serialize;
 
