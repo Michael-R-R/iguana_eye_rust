@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 
 use super::entity::Entity;
 use component::{Componentable, hierarchy_component::HierarchyComponent};
-use crate::{util::hash, game::Game, app::Viewport};
+use crate::{util::hash, system::game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 pub struct ComponentManager {

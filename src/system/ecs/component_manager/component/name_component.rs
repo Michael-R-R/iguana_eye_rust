@@ -1,9 +1,8 @@
 use serde::{Serialize, Deserialize};
 use std::{collections::HashSet, io};
 use super::{Component, Componentable};
-use crate::game::Game;
 use crate::util::hash;
-use crate::{system::ecs::Entity, app::Viewport};
+use crate::{system::ecs::Entity, system::game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 struct Data {

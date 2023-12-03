@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 use entity::Entity;
 use entity_manager::EntityManager;
 use component_manager::{ComponentManager, component::*, component::Componentable};
-use crate::{game::Game, app::Viewport};
+use crate::{system::game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 pub struct ECS {

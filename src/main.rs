@@ -2,9 +2,7 @@ use winit::event_loop::EventLoop;
 
 mod tests;
 mod app;
-mod game;
 mod graphics;
-mod editor;
 mod system;
 mod util;
 

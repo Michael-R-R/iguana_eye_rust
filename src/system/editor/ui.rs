@@ -7,7 +7,7 @@ use imgui_winit_support::WinitPlatform;
 use winit::{window::Window, dpi::PhysicalSize};
 use winit::event::{KeyboardInput, ModifiersState, MouseButton, Event, ElementState};
 use crate::app::{Viewport, Frame};
-use crate::game::Game;
+use crate::system::game::Game;
 use crate::util::file;
 
 pub struct UI {
