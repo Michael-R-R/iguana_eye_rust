@@ -2,7 +2,7 @@ use std::io;
 use serde::{Serialize, Deserialize};
 use wgpu::{Device, util::DeviceExt, Queue, BufferAddress};
 
-use super::OnDeserialization;
+use super::Deserialized;
 use crate::graphics::buffer::InstanceBuffer;
 
 #[derive(Serialize, Deserialize)]
@@ -117,7 +117,7 @@ impl Instance {
     }
 }
 
-impl OnDeserialization for Instance {
+impl Deserialized for Instance {
     fn init(
         &mut self, 
         device: &wgpu::Device,

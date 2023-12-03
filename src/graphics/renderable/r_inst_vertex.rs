@@ -3,7 +3,7 @@ use std::io;
 use serde::{Serialize, Deserialize};
 use wgpu::{Device, SurfaceConfiguration};
 
-use super::{OnDeserialization, Vertex, Instance};
+use super::{Deserialized, Vertex, Instance};
 use crate::graphics::shader::Shader;
 use crate::graphics::buffer::{VertexBuffer, InstanceBuffer, Layout};
 
@@ -56,7 +56,7 @@ impl InstanceVertex {
     }
 }
 
-impl OnDeserialization for InstanceVertex {
+impl Deserialized for InstanceVertex {
     fn init(
         &mut self, 
         device: &Device,
