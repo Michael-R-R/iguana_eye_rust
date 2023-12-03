@@ -4,12 +4,9 @@ use std::collections::{HashMap, HashSet};
 use std::io::{Error, ErrorKind};
 use serde::{Serialize, Deserialize};
 
-use component::Componentable;
-use crate::{util::hash, game::Game, app::Viewport};
-
-use self::component::hierarchy_component::HierarchyComponent;
-
 use super::entity::Entity;
+use component::{Componentable, hierarchy_component::HierarchyComponent};
+use crate::{util::hash, game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 pub struct ComponentManager {
@@ -165,10 +162,6 @@ impl ComponentManager {
         Some(*self.indices.get(&hash)?)
     }
 
-    pub fn type_hash<T: Componentable>() -> u64 {
-        hash::get(&String::from(std::any::type_name::<T>()))
-    }
-
     pub fn purge_entity(&mut self, e: Entity, hash_list: &HashSet<u64>) -> Result<(), Error> {
         self.has_children(e)?;
 
@@ -186,10 +179,11 @@ impl ComponentManager {
             Some(hc) => {
                 match hc.component.find_index(&e) {
                     Some(index) => {
-                        let children = hc.get_children(index)?;
-                        if !children.is_empty() {
-                            return Err(Error::new(ErrorKind::Other,
-                                "ERROR::component_manager::has_children()::children list not empty"))
+                        if let Some(children) = hc.get_children(index) {
+                            if !children.is_empty() {
+                                return Err(Error::new(ErrorKind::Other,
+                                    "ERROR::component_manager::has_children()::children list not empty"))
+                            }
                         }
                     },
                     None => {
@@ -212,5 +206,9 @@ impl ComponentManager {
             let c = &self.components[i];
             self.indices.insert(c.get_hash(), i);
         }
+    }
+
+    pub fn type_hash<T: Componentable>() -> u64 {
+        hash::get(&String::from(std::any::type_name::<T>()))
     }
 }

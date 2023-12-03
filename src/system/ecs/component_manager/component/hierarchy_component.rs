@@ -2,10 +2,9 @@ use std::collections::HashSet;
 use std::io;
 use serde::{Serialize, Deserialize};
 
+use super::{Componentable, Component};
 use crate::{system::ecs::entity::Entity, game::Game, app::Viewport};
 use crate::util::hash;
-
-use super::{Componentable, Component};
 
 #[derive(Serialize, Deserialize)]
 struct Data {
@@ -59,15 +58,11 @@ impl Componentable for HierarchyComponent {
         let swapped = self.data.entity[last];
 
         // Remove from parent
-        match self.data.parent[to_remove] {
-            Some(p) => {
-                match self.component.find_index(&p) {
-                    Some(p_index) => self.remove_child(p_index, to_remove)?,
-                    None => {}
-                };
-            },
-            None => {}
-        };
+        if let Some(p) = self.data.parent[to_remove] {
+            if let Some(p_index) = self.component.find_index(&p) {
+                self.remove_child(p_index, to_remove)?
+            }
+        }
 
         self.data.entity.swap(to_remove, last);
         self.data.parent.swap(to_remove, last);
@@ -126,8 +121,8 @@ impl HierarchyComponent {
         let p = self.data.entity[p_index];
         let c = self.data.entity[c_index];
 
-        self.data.parent[c_index] = Some(p);
         self.data.children[p_index].insert(c);
+        self.data.parent[c_index] = Some(p);
 
         Ok(())
     }
@@ -154,36 +149,34 @@ impl HierarchyComponent {
         }
 
         let c = self.data.entity[c_index];
+
         self.data.children[p_index].remove(&c);
         self.data.parent[c_index] = None;
 
         Ok(())
     }
 
-    pub fn get_entity(&self, index: usize) -> Result<Entity, io::Error> {
+    pub fn get_entity(&self, index: usize) -> Option<Entity> {
         if !self.component.bounds_check(index) {
-            return Err(io::Error::new(io::ErrorKind::Other,
-                "ERROR::HierarchyComponent::get_entity()::out of bounds"))
+            return None
         }
 
-        return Ok(self.data.entity[index])
+        return Some(self.data.entity[index])
     }
 
-    pub fn get_parent(&self, index: usize) -> Result<Option<Entity>, io::Error> {
+    pub fn get_parent(&self, index: usize) -> Option<Entity> {
         if !self.component.bounds_check(index) {
-            return Err(io::Error::new(io::ErrorKind::Other,
-                "ERROR::HierarchyComponent::get_parent()::out of bounds"))
+            return None
         }
 
-        return Ok(self.data.parent[index])
+        return self.data.parent[index]
     }
 
-    pub fn get_children(&self, index: usize) -> Result<&HashSet<Entity>, io::Error> {
+    pub fn get_children(&self, index: usize) -> Option<&HashSet<Entity>> {
         if !self.component.bounds_check(index) {
-            return Err(io::Error::new(io::ErrorKind::Other,
-                "ERROR::HierarchyComponent::get_children()::out of bounds"))
+            return None
         }
 
-        return Ok(&self.data.children[index])
+        return Some(&self.data.children[index])
     }
 }

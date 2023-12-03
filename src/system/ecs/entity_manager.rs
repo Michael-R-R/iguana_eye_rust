@@ -67,14 +67,6 @@ impl EntityManager {
         }
     }
 
-    pub fn get_attached(&self, entity: Entity) -> Option<&HashSet<u64>> {
-        return self.entities.get(&entity)
-    }
-
-    pub fn does_exist(&self, entity: Entity) -> bool {
-        return self.entities.contains_key(&entity);
-    }
-
     pub fn has_component(&self, entity: Entity, component: u64) -> bool {
         match self.entities.get(&entity) {
             Some(set) => {
@@ -82,6 +74,14 @@ impl EntityManager {
             },
             None => return false
         }
+    }
+
+    pub fn get_attached(&self, entity: Entity) -> Option<&HashSet<u64>> {
+        return self.entities.get(&entity)
+    }
+
+    pub fn does_exist(&self, entity: Entity) -> bool {
+        return self.entities.contains_key(&entity);
     }
 
     pub fn count(&self) -> usize {
