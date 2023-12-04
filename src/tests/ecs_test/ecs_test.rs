@@ -20,7 +20,7 @@ fn remove_entity() {
     }
 
     for i in 1..=50 {
-        assert!(ecs.remove_entity(Entity::new(i)).is_ok())
+        assert!(ecs.remove_entity(Entity::new(i)).is_ok());
     }
 
     assert_eq!(0, ecs.count());

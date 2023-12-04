@@ -7,7 +7,7 @@ use std::{io::Error, collections::HashSet};
 use serde::{Serialize, Deserialize};
 use entity::Entity;
 use entity_manager::EntityManager;
-use component_manager::{ComponentManager, component::*, component::Componentable};
+use component_manager::{ComponentManager, component::Componentable};
 use crate::{game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
@@ -66,8 +66,6 @@ impl ECS {
 
     pub fn create_entity(&mut self) -> Result<Entity, Error> {
         let e = self.entity_manager.create();
-        self.attach_component::<name_component::NameComponent>(e)?;
-        self.attach_component::<hierarchy_component::HierarchyComponent>(e)?;
 
         Ok(e)
     }

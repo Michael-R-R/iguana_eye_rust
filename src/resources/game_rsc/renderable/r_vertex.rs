@@ -3,8 +3,8 @@ use wgpu::BindGroupLayout;
 use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
-use crate::graphics::shader::Shader;
-use crate::graphics::buffer::{VertexBuffer, Layout};
+use crate::resources::game_rsc::shader::Shader;
+use crate::resources::game_rsc::buffer::{VertexBuffer, Layout};
 
 #[derive(Serialize, Deserialize)]
 pub struct Vertex {

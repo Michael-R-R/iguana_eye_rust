@@ -3,7 +3,7 @@ use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
 use super::{Vertex, Deserialized};
-use crate::graphics::{buffer::VertexBuffer, shader::Shader};
+use crate::resources::game_rsc::{buffer::VertexBuffer, shader::Shader};
 
 #[derive(Serialize, Deserialize)]
 pub struct Index {

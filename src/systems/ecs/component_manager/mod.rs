@@ -163,38 +163,9 @@ impl ComponentManager {
     }
 
     pub fn purge_entity(&mut self, e: Entity, hash_list: &HashSet<u64>) -> Result<(), Error> {
-        self.has_children(e)?;
-
         for hash in hash_list {
             if let Some(c) = self.get_by_hash_mut(*hash) {
                 c.detach(e)?;
-            }
-        }
-
-        Ok(())
-    }
-
-    fn has_children(&self, e: Entity) -> Result<(), Error> {
-        match self.get::<HierarchyComponent>() {
-            Some(hc) => {
-                match hc.component.find_index(&e) {
-                    Some(index) => {
-                        if let Some(children) = hc.get_children(index) {
-                            if !children.is_empty() {
-                                return Err(Error::new(ErrorKind::Other,
-                                    "ERROR::component_manager::has_children()::children list not empty"))
-                            }
-                        }
-                    },
-                    None => {
-                        return Err(Error::new(ErrorKind::NotFound,
-                            "ERROR::component_manager::has_children()::cannot find index"))
-                    }
-                }
-            },
-            None => {
-                return Err(Error::new(ErrorKind::NotFound,
-                    "ERROR::component_manager::has_children()::cannot find hierarchy component"))
             }
         }
 

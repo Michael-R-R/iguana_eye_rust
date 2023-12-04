@@ -1,11 +1,11 @@
 use serde::{Serialize, Deserialize};
 
 use crate::managers::RscManager;
-use crate::graphics::shader::Shader;
+use crate::resources::game_rsc::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct SceneManager {
-    pub shader_manager: RscManager<Shader>,
+    pub shader_manager: RscManager<shader::Shader>,
 }
 
 impl SceneManager {

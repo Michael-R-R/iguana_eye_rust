@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use wgpu::{Device, util::DeviceExt, Queue, BufferAddress};
 
 use super::Deserialized;
-use crate::graphics::buffer::InstanceBuffer;
+use crate::resources::game_rsc::buffer::InstanceBuffer;
 
 #[derive(Serialize, Deserialize)]
 pub struct Instance {
@@ -122,7 +122,7 @@ impl Deserialized for Instance {
         &mut self, 
         device: &wgpu::Device,
         _config: &wgpu::SurfaceConfiguration,
-        _shader: &crate::graphics::shader::Shader,
+        _shader: &crate::resources::game_rsc::shader::Shader,
         _buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
         _bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), std::io::Error> {

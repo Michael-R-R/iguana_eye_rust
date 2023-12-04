@@ -4,7 +4,7 @@ mod tests;
 mod app;
 mod game;
 mod editor;
-mod graphics;
+mod resources;
 mod systems;
 mod managers;
 mod util;

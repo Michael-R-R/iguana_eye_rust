@@ -15,7 +15,7 @@ pub trait Deserialized {
         &mut self, 
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
-        shader: &crate::graphics::shader::Shader,
+        shader: &crate::resources::game_rsc::shader::Shader,
         buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
         bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), std::io::Error>;
