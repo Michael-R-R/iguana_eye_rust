@@ -3,12 +3,13 @@ use wgpu::BindGroupLayout;
 use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
-use crate::resources::game_rsc::shader::Shader;
-use crate::resources::game_rsc::buffer::{VertexBuffer, Layout};
+use crate::resources::file_resource::FileResource;
+use crate::resources::file_resource::shader::Shader;
+use crate::resources::graphic_resource::buffer::{VertexBuffer, Layout};
 
 #[derive(Serialize, Deserialize)]
 pub struct Vertex {
-    pub hash: u64,
+    pub resource: FileResource,
     pub shader_hash: u64,
     pub buffer_list: Vec<VertexBuffer>,
 
@@ -21,7 +22,7 @@ pub struct Vertex {
 
 impl Vertex {
     pub fn new(
-        hash: u64,
+        path: &str,
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
@@ -30,14 +31,15 @@ impl Vertex {
         bind_layouts: &Vec<&BindGroupLayout>
     ) -> Result<Self, io::Error> {
 
+        let resource = FileResource::new(path)?;
         let pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts, bind_layouts)?);
         let vertex_buffer = Some(Vertex::create_vertex_buffer(device, &buffer_list));
-        let shader_hash = shader.hash;
+        let shader_hash = shader.resource.hash;
 
         Ok(Self {
             pipeline,
             vertex_buffer,
-            hash,
+            resource,
             shader_hash,
             buffer_list,
         })
@@ -55,7 +57,7 @@ impl Vertex {
 
         self.pipeline = Some(Vertex::create_pipeline(device, config, shader, buffer_layouts, bind_layouts)?);
         self.vertex_buffer = Some(Vertex::create_vertex_buffer(device, &buffer_list));
-        self.shader_hash = shader.hash;
+        self.shader_hash = shader.resource.hash;
 
         Ok(())
     }
@@ -80,7 +82,7 @@ impl Vertex {
                 Some(val) => val,
                 None => {
                     return Err(io::Error::new(io::ErrorKind::InvalidData,
-                        "ERROR::renderable::modify()::shader module invalid"))
+                        "ERROR::renderable::Vertex::modify()::shader module invalid"))
                 }
             };
 
@@ -149,5 +151,11 @@ impl super::Deserialized for Vertex {
         self.vertex_buffer = Some(Vertex::create_vertex_buffer(device, &self.buffer_list));
 
         Ok(())
+    }
+}
+
+impl PartialEq for Vertex {
+    fn eq(&self, other: &Self) -> bool {
+        return self.resource == other.resource
     }
 }

@@ -4,8 +4,8 @@ use serde::{Serialize, Deserialize};
 use wgpu::{Device, SurfaceConfiguration};
 
 use super::{Index, Instance, Deserialized};
-use crate::resources::game_rsc::shader::Shader;
-use crate::resources::game_rsc::buffer::{VertexBuffer, InstanceBuffer, Layout};
+use crate::resources::file_resource::shader::Shader;
+use crate::resources::graphic_resource::buffer::{VertexBuffer, InstanceBuffer, Layout};
 
 #[derive(Serialize, Deserialize)]
 pub struct InstanceIndex {
@@ -15,7 +15,7 @@ pub struct InstanceIndex {
 
 impl InstanceIndex {
     pub fn new(
-        hash: u64,
+        path: &str,
         device: &Device,
         config: &SurfaceConfiguration,
         shader: &Shader,
@@ -28,7 +28,7 @@ impl InstanceIndex {
 
         buffer_layouts.insert(0, InstanceBuffer::layout());
 
-        let r_index = Index::new(hash, device, config, shader, buffer_list, index_list, buffer_layouts, bind_layouts)?;
+        let r_index = Index::new(path, device, config, shader, buffer_list, index_list, buffer_layouts, bind_layouts)?;
         let r_instance = Instance::new(device, inst_list)?;
 
         Ok(Self {
@@ -72,5 +72,11 @@ impl Deserialized for InstanceIndex {
         self.r_instance.init(device, config, shader, buffer_layouts, bind_layouts)?;
 
         Ok(())
+    }
+}
+
+impl PartialEq for InstanceIndex {
+    fn eq(&self, other: &Self) -> bool {
+        return self.r_index == other.r_index
     }
 }

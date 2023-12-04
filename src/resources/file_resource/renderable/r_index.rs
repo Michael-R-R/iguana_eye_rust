@@ -3,7 +3,8 @@ use wgpu::util::DeviceExt;
 use serde::{Serialize, Deserialize};
 
 use super::{Vertex, Deserialized};
-use crate::resources::game_rsc::{buffer::VertexBuffer, shader::Shader};
+use crate::resources::file_resource::shader::Shader;
+use crate::resources::graphic_resource::buffer::VertexBuffer;
 
 #[derive(Serialize, Deserialize)]
 pub struct Index {
@@ -17,7 +18,7 @@ pub struct Index {
 
 impl Index {
     pub fn new(
-        hash: u64,
+        path: &str,
         device: &wgpu::Device,
         config: &wgpu::SurfaceConfiguration,
         shader: &Shader,
@@ -27,7 +28,7 @@ impl Index {
         bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<Self, io::Error> {
         
-        let r_vertex = Vertex::new(hash, device, config, shader, buffer_list, buffer_layouts, bind_layouts)?;
+        let r_vertex = Vertex::new(path, device, config, shader, buffer_list, buffer_layouts, bind_layouts)?;
         let index_buffer = Some(Index::create_index_buffer(device, &index_list));
         let index_count = index_list.len() as u32;
 
@@ -85,5 +86,11 @@ impl Deserialized for Index {
         self.index_buffer = Some(Index::create_index_buffer(device, &self.index_list));
 
         Ok(())
+    }
+}
+
+impl PartialEq for Index {
+    fn eq(&self, other: &Self) -> bool {
+        return self.r_vertex == other.r_vertex
     }
 }

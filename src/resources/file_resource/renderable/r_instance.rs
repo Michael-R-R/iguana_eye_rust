@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use wgpu::{Device, util::DeviceExt, Queue, BufferAddress};
 
 use super::Deserialized;
-use crate::resources::game_rsc::buffer::InstanceBuffer;
+use crate::resources::graphic_resource::buffer::InstanceBuffer;
 
 #[derive(Serialize, Deserialize)]
 pub struct Instance {
@@ -57,7 +57,7 @@ impl Instance {
 
         if !self.bounds_check(index) {
             return Err(io::Error::new(io::ErrorKind::Other, 
-                "ERROR::r_instance::modify_instance()::index out of bounds"))
+                "ERROR::renderable::Instance::modify_instance()::index out of bounds"))
         }
 
         match &self.inst_buffer {
@@ -69,7 +69,7 @@ impl Instance {
             },
             None => {
                 return Err(io::Error::new(io::ErrorKind::Other, 
-                    "ERROR::r_instance::modify_instance()::invalid instance buffer"))
+                    "ERROR::renderable::Instance::modify_instance()::invalid instance buffer"))
             }
         }
 
@@ -79,7 +79,7 @@ impl Instance {
     pub fn remove_instance(&mut self, device: &Device, index: usize) -> Result<usize, io::Error> {
         if !self.bounds_check(index) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
-                "ERROR::r_instance::remove_instance()::index out of bounds"))
+                "ERROR::renderable::Instance::remove_instance()::index out of bounds"))
         }
 
         let last = self.inst_list.len() - 1;
@@ -94,7 +94,7 @@ impl Instance {
     pub fn get_instance(&self, index: usize) -> Result<&InstanceBuffer, io::Error> {
         if !self.bounds_check(index) {
             return Err(io::Error::new(io::ErrorKind::NotFound,
-                "ERROR::r_instance::get_instance()::index out of bounds"));
+                "ERROR::renderable::Instance::get_instance()::index out of bounds"));
         }
 
         return Ok(&self.inst_list[index]);
@@ -122,7 +122,7 @@ impl Deserialized for Instance {
         &mut self, 
         device: &wgpu::Device,
         _config: &wgpu::SurfaceConfiguration,
-        _shader: &crate::resources::game_rsc::shader::Shader,
+        _shader: &crate::resources::file_resource::shader::Shader,
         _buffer_layouts: &mut Vec<wgpu::VertexBufferLayout<'static>>,
         _bind_layouts: &Vec<&wgpu::BindGroupLayout>
     ) -> Result<(), std::io::Error> {

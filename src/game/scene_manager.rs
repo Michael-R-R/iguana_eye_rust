@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 
 use crate::managers::RscManager;
-use crate::resources::game_rsc::*;
+use crate::resources::file_resource::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct SceneManager {

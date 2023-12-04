@@ -4,7 +4,8 @@ use wgpu::{Buffer, BindGroup, Device, Queue, BindGroupLayout};
 use serde::{Serialize, Deserialize};
 use cgmath::{Point3, Vector3, Matrix4};
 
-use super::uniform_buffer::CameraUBuffer;
+use super::SceneResource;
+use crate::resources::graphic_resource::uniform_buffer::CameraUBuffer;
 
 const OPENGL_TO_WGPU_MATRIX: Matrix4<f32> = Matrix4::new(
     1.0, 0.0, 0.0, 0.0,
@@ -15,6 +16,7 @@ const OPENGL_TO_WGPU_MATRIX: Matrix4<f32> = Matrix4::new(
 
 #[derive(Serialize, Deserialize)]
 pub struct Camera {
+    resource: SceneResource,
     projection: Matrix4<f32>,
     eye: Point3<f32>,
     target: Point3<f32>,
@@ -38,8 +40,9 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(device: &Device, width: f32, height: f32) -> Self {
+    pub fn new(hash: u64, device: &Device, width: f32, height: f32) -> Self {
         
+        let resource = SceneResource::new(hash);
         let (camera_buffer, u_buffer) = CameraUBuffer::new(device);
         let bind_group_layout = CameraUBuffer::layout(device);
         let bind_group = CameraUBuffer::bind_group(device, &bind_group_layout, &u_buffer);
@@ -47,6 +50,7 @@ impl Camera {
         let zfar = 1000.0;
         
         Self {
+            resource,
             projection: Camera::create_projection(width, height, znear, zfar),
             eye: Point3::new(0.0, 0.0, -1.0),
             target: Point3::new(0.0, 0.0, 0.0),

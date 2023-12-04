@@ -1,2 +1,3 @@
-pub mod game_rsc;
-pub mod editor_rsc;
+pub mod file_resource;
+pub mod scene_resource;
+pub mod graphic_resource;

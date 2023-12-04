@@ -4,8 +4,8 @@ use serde::{Serialize, Deserialize};
 use wgpu::{Device, SurfaceConfiguration};
 
 use super::{Deserialized, Vertex, Instance};
-use crate::resources::game_rsc::shader::Shader;
-use crate::resources::game_rsc::buffer::{VertexBuffer, InstanceBuffer, Layout};
+use crate::resources::file_resource::shader::Shader;
+use crate::resources::graphic_resource::buffer::{VertexBuffer, InstanceBuffer, Layout};
 
 #[derive(Serialize, Deserialize)]
 pub struct InstanceVertex {
@@ -15,7 +15,7 @@ pub struct InstanceVertex {
 
 impl InstanceVertex {
     pub fn new(
-        hash: u64,
+        path: &str,
         device: &Device,
         config: &SurfaceConfiguration,
         shader: &Shader,
@@ -27,7 +27,7 @@ impl InstanceVertex {
 
         buffer_layouts.insert(0, InstanceBuffer::layout());
 
-        let r_vertex = Vertex::new(hash, device, config, shader, buffer_list, buffer_layouts, bind_layouts)?;
+        let r_vertex = Vertex::new(path, device, config, shader, buffer_list, buffer_layouts, bind_layouts)?;
         let r_instance = Instance::new(device, inst_list)?;
 
         Ok(Self {
@@ -70,5 +70,11 @@ impl Deserialized for InstanceVertex {
         self.r_instance.init(device, config, shader, buffer_layouts, bind_layouts)?;
 
         Ok(())
+    }
+}
+
+impl PartialEq for InstanceVertex {
+    fn eq(&self, other: &Self) -> bool {
+        return self.r_vertex == other.r_vertex
     }
 }
