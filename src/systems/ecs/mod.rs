@@ -17,15 +17,11 @@ pub struct ECS {
 }
 
 impl ECS {
-    pub fn new() -> Result<Self, Error> {
-        let mut component_manager = ComponentManager::new();
-        component_manager.add(Box::new(name_component::NameComponent::new()))?;
-        component_manager.add(Box::new(hierarchy_component::HierarchyComponent::new()))?;
-
-        Ok(Self {
-            component_manager,
+    pub fn new() -> Self {
+        Self {
             entity_manager: EntityManager::new(),
-        })
+            component_manager: ComponentManager::new(),
+        }
     }
 
     pub fn handle_update(&mut self, dt: f32, game: &Game) {

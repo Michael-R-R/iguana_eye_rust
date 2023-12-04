@@ -2,7 +2,7 @@ use crate::systems::ecs::{ECS, entity::Entity};
 
 #[test]
 fn create_entity() {
-    let mut ecs = ECS::new().unwrap();
+    let mut ecs = ECS::new();
 
     for i in 1..=50 {
         let e = ecs.create_entity().unwrap();
@@ -13,7 +13,7 @@ fn create_entity() {
 
 #[test]
 fn remove_entity() {
-    let mut ecs = ECS::new().unwrap();
+    let mut ecs = ECS::new();
 
     for _ in 1..=50 {
         _ = ecs.create_entity().unwrap();

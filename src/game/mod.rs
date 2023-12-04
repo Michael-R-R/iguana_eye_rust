@@ -3,24 +3,31 @@ use serde::{Serialize, Deserialize};
 use winit::{window::Window, dpi::PhysicalSize};
 use winit::event::{KeyboardInput, ModifiersState, MouseButton, ElementState};
 
-use crate::app::{Viewport, Frame};
+mod game_setup;
+mod scene_manager;
+
+use self::scene_manager::SceneManager;
 use crate::systems::input::Input;
-use crate::systems::scene::Scene;
+use crate::systems::ecs::ECS;
+use crate::app::{Viewport, Frame};
 
 #[derive(Serialize, Deserialize)]
 pub struct Game {
     pub input: Input,
-    pub scene: Scene,
+    pub scene_manager: SceneManager,
+    pub ecs: ECS,
 }
 
 impl Game {
     pub fn new() -> Result<Self, Error> {
-        let input = Input::new();
-        let scene = Scene::new()?;
+        let input = game_setup::create_input()?;
+        let scene_manager = game_setup::create_scene_manager()?;
+        let ecs = game_setup::create_ecs()?;
 
         Ok(Self { 
             input,
-            scene,
+            scene_manager,
+            ecs,
         })
     }
 
