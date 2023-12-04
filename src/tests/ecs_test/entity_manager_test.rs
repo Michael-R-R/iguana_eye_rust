@@ -31,19 +31,6 @@ fn remove_entities() {
 }
 
 #[test]
-fn free_id() {
-    let mut em = EntityManager::new();
-
-    for _ in 1..=3{
-        _ = em.create();
-    }
-    assert!(em.remove(Entity::new(2)));
-
-    let e = em.create();
-    assert_eq!(2, e.id);
-}
-
-#[test]
 fn attach_components() {
     let mut em = EntityManager::new();
     

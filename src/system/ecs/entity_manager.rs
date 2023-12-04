@@ -6,7 +6,6 @@ use super::entity::Entity;
 #[derive(Serialize, Deserialize)]
 pub struct EntityManager {
     entities: HashMap<Entity, HashSet<u64>>,
-    free_ids: Vec<u64>,
     next_id: u64,
 }
 
@@ -14,24 +13,17 @@ impl EntityManager {
     pub fn new() -> Self {
         Self {
             entities: HashMap::new(),
-            free_ids: Vec::new(),
             next_id: 0
         }
     }
 
     pub fn create(&mut self) -> Entity {
-        let mut entity = Entity::new(0);
+        self.next_id += 1;
+        let mut entity = Entity::new(self.next_id);
 
-        match self.free_ids.pop() {
-            Some(id) => entity.id = id,
-            None => {
-                self.next_id += 1;
-                entity.id = self.next_id;
-                while self.does_exist(entity) {
-                    self.next_id += 1;
-                    entity.id = self.next_id;
-                }
-            }
+        while self.does_exist(entity) {
+            self.next_id += 1;
+            entity.id = self.next_id;
         }
 
         self.entities.insert(entity, HashSet::new());
@@ -41,10 +33,7 @@ impl EntityManager {
 
     pub fn remove(&mut self, entity: Entity) -> bool {
         match self.entities.remove(&entity) {
-            Some(_) => {
-                self.free_ids.push(entity.id);
-                return true
-            },
+            Some(_) => return true,
             None => return false
         }
     }
