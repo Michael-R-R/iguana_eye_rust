@@ -1,4 +1,4 @@
-use crate::system::input::{Input, Key};
+use crate::systems::input::{Input, Key};
 use winit::event::{VirtualKeyCode, ModifiersState, KeyboardInput, ElementState};
 
 #[test]

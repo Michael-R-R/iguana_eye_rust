@@ -1,5 +1,5 @@
 use std::any::TypeId;
-use crate::system::ecs::component_manager::{*, component::{*, name_component, hierarchy_component}};
+use crate::systems::ecs::component_manager::{*, component::{*, name_component, hierarchy_component}};
 
 #[test]
 fn add_component() {

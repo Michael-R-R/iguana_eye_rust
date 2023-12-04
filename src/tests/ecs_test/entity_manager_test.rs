@@ -1,4 +1,4 @@
-use crate::system::ecs::{entity_manager::EntityManager, entity::Entity};
+use crate::systems::ecs::{entity_manager::EntityManager, entity::Entity};
 
 
 #[test]

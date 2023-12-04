@@ -3,7 +3,7 @@ use winit::{window::Window, dpi::PhysicalSize};
 use winit::event::{KeyboardInput, ModifiersState, MouseButton, ElementState};
 
 use crate::app::{Viewport, Frame};
-use crate::system::input::Input;
+use crate::systems::input::Input;
 
 #[derive(Serialize, Deserialize)]
 pub struct Game {

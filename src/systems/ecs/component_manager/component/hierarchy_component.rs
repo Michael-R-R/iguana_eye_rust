@@ -3,7 +3,7 @@ use std::io;
 use serde::{Serialize, Deserialize};
 
 use super::{Componentable, Component};
-use crate::{system::ecs::Entity, game::Game, app::Viewport};
+use crate::{systems::ecs::Entity, game::Game, app::Viewport};
 use crate::util::hash;
 
 #[derive(Serialize, Deserialize)]

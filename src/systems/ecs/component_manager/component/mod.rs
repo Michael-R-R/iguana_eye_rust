@@ -15,7 +15,7 @@ pub trait Componentable {
 
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-use crate::{system::ecs::Entity, game::Game, app::Viewport};
+use crate::{systems::ecs::Entity, game::Game, app::Viewport};
 
 #[derive(Serialize, Deserialize)]
 pub struct Component {

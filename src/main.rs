@@ -5,7 +5,7 @@ mod app;
 mod game;
 mod editor;
 mod graphics;
-mod system;
+mod systems;
 mod util;
 
 fn main() {

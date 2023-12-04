@@ -1,4 +1,4 @@
-use crate::system::ecs::{component_manager::component::{hierarchy_component, Componentable}, entity::Entity};
+use crate::systems::ecs::{component_manager::component::{hierarchy_component, Componentable}, entity::Entity};
 
 #[test]
 fn attach_component() {

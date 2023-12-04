@@ -1,4 +1,4 @@
-use crate::system::input::{Input, Button};
+use crate::systems::input::{Input, Button};
 use winit::event::{MouseButton, ElementState};
 
 #[test]

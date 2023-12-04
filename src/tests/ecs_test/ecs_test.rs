@@ -1,4 +1,4 @@
-use crate::system::ecs::{ECS, entity::Entity};
+use crate::systems::ecs::{ECS, entity::Entity};
 
 #[test]
 fn create_entity() {
