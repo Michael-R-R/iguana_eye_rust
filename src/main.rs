@@ -6,6 +6,7 @@ mod game;
 mod editor;
 mod graphics;
 mod systems;
+mod managers;
 mod util;
 
 fn main() {

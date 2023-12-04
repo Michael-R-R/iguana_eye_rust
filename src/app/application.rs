@@ -71,7 +71,7 @@ impl Application {
         let width = config.width;
         let height = config.height;
         let viewport = Viewport::new(&window).await;
-        let game = Game::new();
+        let game = Game::new().expect("Failed to create game");
         let ui = UI::new(&window, &viewport);
 
         Self {
